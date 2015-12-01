@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Solar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,400,700' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+    <link href="css/screen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/index.html">Solar</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li  class="active" ><a href="/index.html">Home</a></li>
+                <li
+                ><a href="/archives.html">Archives</a></li>
+                
+                <li
+                >
+                <a href="/pages/about.html">About</a>
+                </li>
+                
+                <li><a href="/feed.xml">RSS</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>
+
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div id="content">
+                
+<div id="post">
+    <div class="post-header">
+    <div id="post-meta" class="row">
+        <div class="col-lg-6">December 2, 2015</div>
+        
+    </div>
+    <h2>Clojure lazy evaluation and stack overflow exceptions</h2>
+</div>
+<div>
+    
+    <p>A couple of weeks ago I had to debug a really mind-boggling (for me) problem at work and it took me the better part of three days to figure it out. A Clojure program I had created in order to crunch some data threw a stack overflow exception provided the input was large enough. When I say large enough, I mean around 150 megabytes in JSON format. So not huge, but neither negligible.</p><p>Let me describe the situation. After some processing, I had a large vector of hash maps that looked like this:</p><pre><code class="clj">&#91;{&quot;ab&quot; &#91;1 0&#93;} {&quot;bc&quot; &#91;1 1&#93;} {&quot;de&quot; &#91;1 0&#93;} {&quot;ab&quot; &#91;1 1&#93;}&#93;
+</code></pre><p>So each hash map was essentially mapping a string to a vector which contained two numbers. The catch is that there are duplicate strings there and the task was to merge them into one single hash map that would contain the sum of each number in the vectors. So the example above would become:</p><pre><code class="clj">{&quot;ab&quot; &#91;2 1&#93; &quot;bc&quot; &#91;1 1&#93; &quot;de&quot; &#91;1 0&#93;}
+</code></pre><p>“Easy enough”, I thought and proceeded to write:</p><pre><code class="clj">&#40;defn merge-hashes-naive &#91;coll&#93;
+  &#40;apply merge-with &#40;fn &#91;a b&#93; &#40;map + a b&#41;&#41;&#41;&#41;
+</code></pre><p>Experienced Clojure developers should already be cringing with my naivety.</p><p>However, the program processed all the input easily and it wasn’t until I added the next function that things got bad. After merging all the hash maps, I needed to drop some of them and perform calculations based on some business rules. I decided to use a list comprehension:</p><pre><code class="clj">&#40;def simple-list-comp &#91;results&#93;
+  &#40;for &#91;&#91;k &#91;a b&#93;&#93; results&#93;
+    :when ;; do stuff
+</code></pre><p>For small input, this worked fine. It wasn’t until I tried it using the full input that the stack overflow exception was thrown. And the stack trace was huge:</p><pre><code>java.lang.StackOverflowError
+     at clojure.core$seq.invoke&#40;core.clj:133&#41;
+     at clojure.core$concat$fn&#95;&#95;3955.invoke&#40;core.clj:685&#41;
+     at clojure.lang.LazySeq.sval&#40;LazySeq.java:40&#41;
+     at clojure.lang.LazySeq.seq&#40;LazySeq.java:49&#41;
+     at clojure.lang.RT.seq&#40;RT.java:484&#41;
+     at clojure.core$seq.invoke&#40;core.clj:133&#41;
+     ......
+</code></pre><p>The first thing I thought was “I saw this somewhere recently” and quickly remembered Stuart Sierra’s <a href='http://stuartsierra.com/2015/04/26/clojure-donts-concat'>post on the concat function</a> (I think his “<a href='http://stuartsierra.com/tag/dos-and-donts'>Clojure do’s and dont’s</a>” series is mandatory reading for Clojure programmers). He writes:</p><blockquote><p> This is a nasty bug in production code, because it could occur far > away from its source, and the accumulated stack frames of seq prevent > us from seeing where the error originated. </p></blockquote><p>After trying a lot of things to solve it, all to no avail — the program had much more going on than these two functions — I decided to try to read the bottom of the (usually truncated) stack trace. Fortunately, there is a JVM option for that:</p><pre><code>-XX:MaxJavaStackTraceDepth=-1
+</code></pre><p>Long story short, the stack trace pointed to the second line of the simple-list-comp function. I thought a bit about it, decided it was random and ignored it completely.</p><p>A couple of days passed.</p><p>By then it was Friday, and this had taken me almost half a week to solve. I could just use a larger stack, but knew that I would have to deal with it eventually. So I thought I would take another look at the <code>simple-list-function</code>. I removed all logic from it and just let it pass once through the input. Stack overflow. Then, I changed the destructuring:</p><pre><code class="clj">&#40;for &#91;&#91;a b&#93; results&#93; a&#41;
+</code></pre><p><em>It didn’t blow up.</em> Somehow, the destructuring of the vector was where the problem occurred (note to self: I should trust the stack traces more). Suddenly, it all clicked: *The destructuring triggered the evaluation, it was all lazy seqs until that point!* But of course! The map function wraps its result in a lazy seq, meaning that nothing gets evaluated until the result is needed.</p><p>What this means is that whenever the call to <code>merge-with</code> encountered a key it had seen before, instead of calculating the result, it wrapped the calculation inside a lazy seq and returned. For example, merging:</p><pre><code class="clj">&#91;{&quot;ab&quot; &#91;1 0&#93;} {&quot;ab&quot; &#91;2 1&#93;} {&quot;ab&quot; &#91;0 1&#93;}&#93;
+</code></pre><p>instead of returning just:</p><pre><code class="clj">{&quot;ab&quot; &#91;3 2&#93;}
+</code></pre><p>would essentially return:</p><pre><code class="clj">{&quot;ab&quot; &#40;map + &#91;0 1&#93; &#40;map + &#91;2 1&#93; &#91;1 0&#93;&#41;&#41;}
+</code></pre><p>where the nested maps would only get evaluated when needed, which in my case was when destructuring the list comprehension arguments. Each nested call would consume a bit of the stack and when the nesting became large enough, the stack would overflow. In my case it took about 1,500 calls (so a key would exist 1,500 times in the original collection).</p><p>The easiest mitigation was to replace <code>map</code> with its eager counterpart, <code>mapv</code>:</p><pre><code class="clj">&#40;defn merge-hashes-naive &#91;coll&#93;
+  &#40;apply merge-with &#40;fn &#91;a b&#93; &#40;mapv + a b&#41;&#41;&#41;&#41;
+</code></pre><p>But the real gain was finally understanding that lazy evaluation happens all the time in Clojure. For example <code>map</code>, <code>filter</code>, <code>range</code> and <code>take</code> are all lazy.</p><p>I hope this will be helpful to another Clojure newbie in the future. For more about lazy evaluation in Clojure I suggest reading <a href='http://clojure-doc.org/articles/language/laziness.html'>Laziness in Clojure</a> and chapter 3 from the excellent <a href='https://www.manning.com/books/the-joy-of-clojure-second-edition'>Joy of Clojure</a> book.</p>
+</div>
+
+<div id="post-tags">
+    <b>Tags: </b>
+    
+    <a href="/tags/clojure.html">clojure</a>
+    
+</div>
+
+
+    
+
+    <div id="prev-next">
+        
+        
+    </div>
+</div>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div id="sidebar">
+                <h3>Links</h3>
+                <ul id="links">
+                  <li><a href="http://engineering.skroutz.gr">Skroutz Engineering</a></li>
+                    
+                </ul>
+                
+                <div id="recent">
+                    <h3>Recent Posts</h3>
+                    <ul>
+                        
+                        <li><a href="/posts/2015-12-02-clojure-lazy-evaluation.html">Clojure lazy evaluation and stack overflow exceptions</a></li>
+                        
+                    </ul>
+                </div>
+                
+                
+                <div id="tags">
+                    <h3>Tags</h3>
+                    <ul>
+                        
+                        <li><a href="/tags/clojure.html">clojure</a></li>
+                        
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <footer>Copyright &copy; 2015 Nikos Fertakis
+        <p style="text-align: center;">Powered by <a href="http://cryogenweb.org">Cryogen</a></p></footer>
+</div>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="js/highlight.pack.js" type="text/javascript"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>

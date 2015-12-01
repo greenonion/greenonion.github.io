@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rss version='2.0' xmlns:atom='http://www.w3.org/2005/Atom'>
+<channel>
+<atom:link href='http://greenonion.github.io/' rel='self' type='application/rss+xml'/>
+<title>
+Solar
+</title>
+<link>
+http://greenonion.github.io/
+</link>
+<description>
+Thoughts and ramblings
+</description>
+<lastBuildDate>
+Tue, 01 Dec 2015 23:17:45 +0200
+</lastBuildDate>
+<generator>
+clj-rss
+</generator>
+<item>
+<guid>
+http://greenonion.github.io/posts/2015-12-02-clojure-lazy-evaluation.html
+</guid>
+<link>
+http://greenonion.github.io/posts/2015-12-02-clojure-lazy-evaluation.html
+</link>
+<title>
+Clojure lazy evaluation and stack overflow exceptions
+</title>
+<description>
+&lt;p&gt;A couple of weeks ago I had to debug a really mind-boggling (for me) problem at work and it took me the better part of three days to figure it out. A Clojure program I had created in order to crunch some data threw a stack overflow exception provided the input was large enough. When I say large enough, I mean around 150 megabytes in JSON format. So not huge, but neither negligible.&lt;/p&gt;&lt;p&gt;Let me describe the situation. After some processing, I had a large vector of hash maps that looked like this:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#91;{&amp;quot;ab&amp;quot; &amp;#91;1 0&amp;#93;} {&amp;quot;bc&amp;quot; &amp;#91;1 1&amp;#93;} {&amp;quot;de&amp;quot; &amp;#91;1 0&amp;#93;} {&amp;quot;ab&amp;quot; &amp;#91;1 1&amp;#93;}&amp;#93;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;So each hash map was essentially mapping a string to a vector which contained two numbers. The catch is that there are duplicate strings there and the task was to merge them into one single hash map that would contain the sum of each number in the vectors. So the example above would become:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;{&amp;quot;ab&amp;quot; &amp;#91;2 1&amp;#93; &amp;quot;bc&amp;quot; &amp;#91;1 1&amp;#93; &amp;quot;de&amp;quot; &amp;#91;1 0&amp;#93;}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;“Easy enough”, I thought and proceeded to write:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#40;defn merge-hashes-naive &amp;#91;coll&amp;#93;
+  &amp;#40;apply merge-with &amp;#40;fn &amp;#91;a b&amp;#93; &amp;#40;map + a b&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Experienced Clojure developers should already be cringing with my naivety.&lt;/p&gt;&lt;p&gt;However, the program processed all the input easily and it wasn’t until I added the next function that things got bad. After merging all the hash maps, I needed to drop some of them and perform calculations based on some business rules. I decided to use a list comprehension:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#40;def simple-list-comp &amp;#91;results&amp;#93;
+  &amp;#40;for &amp;#91;&amp;#91;k &amp;#91;a b&amp;#93;&amp;#93; results&amp;#93;
+    :when ;; do stuff
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;For small input, this worked fine. It wasn’t until I tried it using the full input that the stack overflow exception was thrown. And the stack trace was huge:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;java.lang.StackOverflowError
+     at clojure.core$seq.invoke&amp;#40;core.clj:133&amp;#41;
+     at clojure.core$concat$fn&amp;#95;&amp;#95;3955.invoke&amp;#40;core.clj:685&amp;#41;
+     at clojure.lang.LazySeq.sval&amp;#40;LazySeq.java:40&amp;#41;
+     at clojure.lang.LazySeq.seq&amp;#40;LazySeq.java:49&amp;#41;
+     at clojure.lang.RT.seq&amp;#40;RT.java:484&amp;#41;
+     at clojure.core$seq.invoke&amp;#40;core.clj:133&amp;#41;
+     ......
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The first thing I thought was “I saw this somewhere recently” and quickly remembered Stuart Sierra’s &lt;a href='http://stuartsierra.com/2015/04/26/clojure-donts-concat'&gt;post on the concat function&lt;/a&gt; (I think his “&lt;a href='http://stuartsierra.com/tag/dos-and-donts'&gt;Clojure do’s and dont’s&lt;/a&gt;” series is mandatory reading for Clojure programmers). He writes:&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt; This is a nasty bug in production code, because it could occur far &gt; away from its source, and the accumulated stack frames of seq prevent &gt; us from seeing where the error originated. &lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;After trying a lot of things to solve it, all to no avail — the program had much more going on than these two functions — I decided to try to read the bottom of the (usually truncated) stack trace. Fortunately, there is a JVM option for that:&lt;/p&gt;&lt;pre&gt;&lt;code&gt;-XX:MaxJavaStackTraceDepth=-1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Long story short, the stack trace pointed to the second line of the simple-list-comp function. I thought a bit about it, decided it was random and ignored it completely.&lt;/p&gt;&lt;p&gt;A couple of days passed.&lt;/p&gt;&lt;p&gt;By then it was Friday, and this had taken me almost half a week to solve. I could just use a larger stack, but knew that I would have to deal with it eventually. So I thought I would take another look at the &lt;code&gt;simple-list-function&lt;/code&gt;. I removed all logic from it and just let it pass once through the input. Stack overflow. Then, I changed the destructuring:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#40;for &amp;#91;&amp;#91;a b&amp;#93; results&amp;#93; a&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;em&gt;It didn’t blow up.&lt;/em&gt; Somehow, the destructuring of the vector was where the problem occurred (note to self: I should trust the stack traces more). Suddenly, it all clicked: *The destructuring triggered the evaluation, it was all lazy seqs until that point!* But of course! The map function wraps its result in a lazy seq, meaning that nothing gets evaluated until the result is needed.&lt;/p&gt;&lt;p&gt;What this means is that whenever the call to &lt;code&gt;merge-with&lt;/code&gt; encountered a key it had seen before, instead of calculating the result, it wrapped the calculation inside a lazy seq and returned. For example, merging:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#91;{&amp;quot;ab&amp;quot; &amp;#91;1 0&amp;#93;} {&amp;quot;ab&amp;quot; &amp;#91;2 1&amp;#93;} {&amp;quot;ab&amp;quot; &amp;#91;0 1&amp;#93;}&amp;#93;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;instead of returning just:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;{&amp;quot;ab&amp;quot; &amp;#91;3 2&amp;#93;}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;would essentially return:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;{&amp;quot;ab&amp;quot; &amp;#40;map + &amp;#91;0 1&amp;#93; &amp;#40;map + &amp;#91;2 1&amp;#93; &amp;#91;1 0&amp;#93;&amp;#41;&amp;#41;}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;where the nested maps would only get evaluated when needed, which in my case was when destructuring the list comprehension arguments. Each nested call would consume a bit of the stack and when the nesting became large enough, the stack would overflow. In my case it took about 1,500 calls (so a key would exist 1,500 times in the original collection).&lt;/p&gt;&lt;p&gt;The easiest mitigation was to replace &lt;code&gt;map&lt;/code&gt; with its eager counterpart, &lt;code&gt;mapv&lt;/code&gt;:&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;clj&quot;&gt;&amp;#40;defn merge-hashes-naive &amp;#91;coll&amp;#93;
+  &amp;#40;apply merge-with &amp;#40;fn &amp;#91;a b&amp;#93; &amp;#40;mapv + a b&amp;#41;&amp;#41;&amp;#41;&amp;#41;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;But the real gain was finally understanding that lazy evaluation happens all the time in Clojure. For example &lt;code&gt;map&lt;/code&gt;, &lt;code&gt;filter&lt;/code&gt;, &lt;code&gt;range&lt;/code&gt; and &lt;code&gt;take&lt;/code&gt; are all lazy.&lt;/p&gt;&lt;p&gt;I hope this will be helpful to another Clojure newbie in the future. For more about lazy evaluation in Clojure I suggest reading &lt;a href='http://clojure-doc.org/articles/language/laziness.html'&gt;Laziness in Clojure&lt;/a&gt; and chapter 3 from the excellent &lt;a href='https://www.manning.com/books/the-joy-of-clojure-second-edition'&gt;Joy of Clojure&lt;/a&gt; book.&lt;/p&gt;
+</description>
+<enclosure>
+
+</enclosure>
+<pubDate>
+Wed, 02 Dec 2015 00:00:00 +0200
+</pubDate>
+</item>
+</channel>
+</rss>
