@@ -6,8 +6,119 @@
     <description>Recent content on Worn-out Shoes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Feb 2017 20:45:36 +0200</lastBuildDate>
+    <lastBuildDate>Thu, 15 Jun 2017 19:39:51 +0300</lastBuildDate>
     <atom:link href="https://greenonion.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SICP Solutions: Introduction and section 1.1.6</title>
+      <link>https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/</link>
+      <pubDate>Thu, 15 Jun 2017 19:39:51 +0300</pubDate>
+      
+      <guid>https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/</guid>
+      <description>
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;I have been studying &lt;a href=&#34;https://mitpress.mit.edu/sicp/&#34;&gt;Structure and Interpretation of Computer Programs&lt;/a&gt; for
+about one and an half months now. As everyone familiar with the book will know,
+at least half of the work (and the knowledge!) is in its several exercises. I
+started documenting my process, writing down all solutions, but wasn&amp;rsquo;t sure
+whether I wanted to post them here. At first I wasn&amp;rsquo;t even sure I&amp;rsquo;d actually go
+through with the book, but as I&amp;rsquo;m reaching section 2.2.4 I am amazed by it and
+not intending to stop soon. Still, this doesn&amp;rsquo;t mean I&amp;rsquo;ll make it to the end,
+and I&amp;rsquo;m not stressing about how long it will take. I&amp;rsquo;m here for the long haul.
+It also goes without saying that you shouldn&amp;rsquo;t believe everyhting you read: some
+of these solutions might be incomplete or just plain wrong.&lt;/p&gt;
+
+&lt;p&gt;On a slightly practical note: I have been using &lt;a href=&#34;https://racket-lang.org&#34;&gt;Racket&lt;/a&gt; with it&amp;rsquo;s &lt;a href=&#34;compatibility layer&#34;&gt;SICP
+collection&lt;/a&gt; for the exercises. I considered using &lt;a href=&#34;https://clojure.org&#34;&gt;Clojure&lt;/a&gt; (which I&amp;rsquo;m
+already familiar with) but decided against it, mainly because I wanted to follow
+the text as closely as I could. Scheme is a very syntactically simple language
+and it is no coincidence the authors chose it to teach programming.&lt;/p&gt;
+
+&lt;p&gt;Finally, I have used the awesome &lt;a href=&#34;https://github.com/viebel/klipse&#34;&gt;Klipse&lt;/a&gt; Clojurescript plugin to make all
+Scheme code samples interactive. This means you can change any value and see the
+changes reflected on the result space!&lt;/p&gt;
+
+&lt;p&gt;There are various solutions for the SICP exercises on the web, but these are
+mine.&lt;/p&gt;
+
+&lt;h1 id=&#34;chapter-1&#34;&gt;Chapter 1&lt;/h1&gt;
+
+&lt;h2 id=&#34;section-1-1-6&#34;&gt;Section 1.1.6&lt;/h2&gt;
+
+&lt;h3 id=&#34;exercise-1-1&#34;&gt;Exercise 1.1&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;10&lt;/li&gt;
+&lt;li&gt;12&lt;/li&gt;
+&lt;li&gt;8&lt;/li&gt;
+&lt;li&gt;3&lt;/li&gt;
+&lt;li&gt;6&lt;/li&gt;
+&lt;li&gt;nil&lt;/li&gt;
+&lt;li&gt;nil&lt;/li&gt;
+&lt;li&gt;19&lt;/li&gt;
+&lt;li&gt;#f&lt;/li&gt;
+&lt;li&gt;4&lt;/li&gt;
+&lt;li&gt;16&lt;/li&gt;
+&lt;li&gt;6&lt;/li&gt;
+&lt;li&gt;16&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;exercise-1-2&#34;&gt;Exercise 1.2&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;  (/ (+ 5 4 (- 2
+               (- 3
+                  (+ 6
+                     (/ 4 5)))))
+     (* 3 (- 6 2) (- 2 7))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;exercise-1-3&#34;&gt;Exercise 1.3&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (greatest-sum-squares a b c)
+  (if (&amp;gt; a b)
+  (+ (* a a)
+  (if (&amp;gt; b c) (* b b) (* c c)))
+  (+ (* b b)
+  (if (&amp;gt; a c) (* a a) (* c c)))))
+
+(greatest-sum-squares 2 3 4)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;exercise-1-4&#34;&gt;Exercise 1.4&lt;/h3&gt;
+
+&lt;p&gt;When the &lt;code&gt;if&lt;/code&gt; statement is evaluated, the operatior is chosen based on whether
+&lt;code&gt;b&lt;/code&gt; is positive or negative, and results into calculating &lt;code&gt;a + |b|&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&#34;exercise-1-5&#34;&gt;Exercise 1.5&lt;/h3&gt;
+
+&lt;p&gt;Using applicative-order evaluation the evaluation never terminates, because as
+it is trying to evaluate the operands, the algorithm falls into an infinite
+loop.&lt;/p&gt;
+
+&lt;p&gt;Using normal-order evaluation, the algorithm does not try to evaluate &lt;code&gt;(p)&lt;/code&gt;
+until it actually needs it. However, the computation terminates before that, as
+the &lt;code&gt;if&lt;/code&gt; special form evaluates the first branch and returns &lt;code&gt;0&lt;/code&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Clojure Code Poster</title>
+      <link>https://greenonion.github.io/blog/clojure-code-poster/</link>
+      <pubDate>Sun, 12 Mar 2017 19:16:22 +0200</pubDate>
+      
+      <guid>https://greenonion.github.io/blog/clojure-code-poster/</guid>
+      <description>&lt;p&gt;A few days ago, one of my colleagues pointed me to an article called &lt;a href=&#34;http://www.east5th.co/blog/2017/02/13/build-your-own-code-poster-with-elixir/&#34;&gt;Build Your
+Own Code Poster With Elixir&lt;/a&gt;,
+adding that he liked the concept and would try an implementation in Go.&lt;/p&gt;
+
+&lt;p&gt;Creating images from text in an automated way is a subject that has always
+fascinated me, but I never spent any time trying to understand it. After a quick
+glance at the aforementioned blog post I decided I would try my hand at an
+implementation in Clojure.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Home</title>
@@ -45,21 +156,24 @@ So not huge, but neither negligible.&lt;/p&gt;
 
 &lt;p&gt;Let me describe the situation. After some processing, I had a large
 vector of hash maps that looked like this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;[{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;bc&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;de&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]}]
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;[{&amp;quot;ab&amp;quot; [1 0]} {&amp;quot;bc&amp;quot; [1 1]} {&amp;quot;de&amp;quot; [1 0]} {&amp;quot;ab&amp;quot; [1 1]}]
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;So each hash map was essentially mapping a string to a vector which
 contained two numbers. The catch is that there are duplicate strings
 there and the task was to merge them into one single hash map that
 would contain the sum of each number in the vectors. So the example
 above would become:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;bc&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;de&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; [2 1] &amp;quot;bc&amp;quot; [1 1] &amp;quot;de&amp;quot; [1 0]}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;“Easy enough”, I thought and proceeded to write:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;defn &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;merge-hashes-naive&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;coll&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;apply merge-with &lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;fn &lt;/span&gt;[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;))))
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (map + a b))))
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Experienced Clojure developers should already be cringing with my
 naivety.&lt;/p&gt;
@@ -68,10 +182,11 @@ naivety.&lt;/p&gt;
 I added the next function that things got bad. After merging all the
 hash maps, I needed to drop some of them and perform calculations based
 on some business rules. I decided to use a list comprehension:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;def &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;simple-list-comp&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;for &lt;/span&gt;[[&lt;span style=&#34;color: #B8860B&#34;&gt;k&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;]] &lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;]
-    &lt;span style=&#34;color: #B8860B&#34;&gt;:when&lt;/span&gt; &lt;span style=&#34;color: #008800; font-style: italic&#34;&gt;;; do stuff&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(def simple-list-comp [results]
+  (for [[k [a b]] results]
+    :when ;; do stuff
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;For small input, this worked fine. It wasn’t until I tried it using
 the full input that the stack overflow exception was thrown. And the
@@ -118,8 +233,9 @@ to deal with it eventually. So I thought I would take another look at
 the &lt;code&gt;simple-list-function&lt;/code&gt;. I removed all logic from it and just let it
 pass once through the input. Stack overflow. Then, I changed the
 destructuring:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF&#34;&gt;for &lt;/span&gt;[[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] &lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;] &lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt;)
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(for [[a b] results] a)
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;em&gt;It didn’t blow up.&lt;/em&gt; Somehow, the destructuring of the vector was where
 the problem occurred (note to self: I should trust the stack traces
@@ -131,16 +247,19 @@ gets evaluated until the result is needed.&lt;/p&gt;
 &lt;p&gt;What this means is that whenever the call to &lt;code&gt;merge-with&lt;/code&gt; encountered
 a key it had seen before, instead of calculating the result, it wrapped
 the calculation inside a lazy seq and returned. For example, merging:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;[{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]}]
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;[{&amp;quot;ab&amp;quot; [1 0]} {&amp;quot;ab&amp;quot; [2 1]} {&amp;quot;ab&amp;quot; [0 1]}]
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;instead of returning just:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;3&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt;]}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; [3 2]}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;would essentially return:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;[&lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;[&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]))}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; (map + [0 1] (map + [2 1] [1 0]))}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;where the nested maps would only get evaluated when needed, which in my
 case was when destructuring the list comprehension arguments. Each
@@ -151,9 +270,10 @@ collection).&lt;/p&gt;
 
 &lt;p&gt;The easiest mitigation was to replace &lt;code&gt;map&lt;/code&gt; with its eager counterpart,
 &lt;code&gt;mapv&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;defn &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;merge-hashes-naive&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;coll&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;apply merge-with &lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;fn &lt;/span&gt;[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] (&lt;span style=&#34;color: #00A000&#34;&gt;mapv&lt;/span&gt; &lt;span style=&#34;color: #AA22FF&#34;&gt;+ &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;))))
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (mapv + a b))))
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;But the real gain was finally understanding that lazy evaluation
 happens all the time in Clojure. For example &lt;code&gt;map&lt;/code&gt;, &lt;code&gt;filter&lt;/code&gt;, &lt;code&gt;range&lt;/code&gt;

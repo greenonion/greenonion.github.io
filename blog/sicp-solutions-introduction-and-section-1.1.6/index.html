@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Thoughts">
+
+<base href="https://greenonion.github.io/">
+<title>
+
+
+     Worn-out Shoes - SICP Solutions: Introduction and section 1.1.6 
+
+</title>
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/">
+
+
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/default.min.css">
+
+
+<link rel="stylesheet" href="https://greenonion.github.io/css/reset.css">
+<link rel="stylesheet" href="https://greenonion.github.io/css/main.css">
+
+
+  <link rel="stylesheet" href="https://greenonion.github.io/css/progressively.min.css">
+
+
+
+
+
+<link rel="shortcut icon"
+
+    href="https://greenonion.github.io/img/favicon.ico"
+
+>
+
+
+
+
+</head>
+
+
+  <body lang="en">
+
+    
+    <section class="header">
+      
+        <div class="container">
+          <a href="https://greenonion.github.io/"></a>
+          <div class="content">
+            <a href="https://greenonion.github.io/"><div class="name"><h1>Worn-out Shoes</h1></div></a>
+            <nav>
+              <ul>
+                
+                <a href="https://greenonion.github.io/blog/"><li>Blog</li></a>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <a href="https://greenonion.github.io/about/"><li>about</li></a>
+                
+                
+                <a href="https://pinboard.in/u:greenonion"><li>Pinboard</li></a>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <section class="icons">
+        <div class="container">
+          <div class="content">
+
+            
+            <a href="https://github.com/greenonion" target="_blank">
+              <i class="icon ion-social-github"></i>
+            </a>
+            
+
+            
+            <a href="https://twitter.com/@nikosfertakis" target="_blank">
+              <i class="icon ion-social-twitter"></i>
+            </a>
+            
+
+            
+            <a href="https://www.linkedin.com/in/nfertakis" target="_blank">
+              <i class="icon ion-social-linkedin"></i>
+            </a>
+            
+
+            
+            <a href="mailto:nikos.fertakis@gmail.com">
+              <i class="icon ion-ios-email larger"></i>
+            </a>
+            
+
+            
+            <a href="https://greenonion.github.io/index.xml">
+              <i class="icon ion-social-rss larger"></i>
+            </a>
+            
+          </div>
+        </div>
+      </section>
+
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
+        <div class="content">
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    SICP Solutions: Introduction and section 1.1.6
+
+</div>
+
+                </div>
+                <div class="meta">
+                    <div class="date" title="Thu Jun 15 2017 19:39:51 EEST">15 Jun, 2017</div>
+                    <div class="reading-time"><div class="middot"></div>2 minutes read</div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+                    
+
+<h1 id="introduction">Introduction</h1>
+
+<p>I have been studying <a href="https://mitpress.mit.edu/sicp/">Structure and Interpretation of Computer Programs</a> for
+about one and an half months now. As everyone familiar with the book will know,
+at least half of the work (and the knowledge!) is in its several exercises. I
+started documenting my process, writing down all solutions, but wasn&rsquo;t sure
+whether I wanted to post them here. At first I wasn&rsquo;t even sure I&rsquo;d actually go
+through with the book, but as I&rsquo;m reaching section 2.2.4 I am amazed by it and
+not intending to stop soon. Still, this doesn&rsquo;t mean I&rsquo;ll make it to the end,
+and I&rsquo;m not stressing about how long it will take. I&rsquo;m here for the long haul.
+It also goes without saying that you shouldn&rsquo;t believe everyhting you read: some
+of these solutions might be incomplete or just plain wrong.</p>
+
+<p>On a slightly practical note: I have been using <a href="https://racket-lang.org">Racket</a> with it&rsquo;s <a href="compatibility layer">SICP
+collection</a> for the exercises. I considered using <a href="https://clojure.org">Clojure</a> (which I&rsquo;m
+already familiar with) but decided against it, mainly because I wanted to follow
+the text as closely as I could. Scheme is a very syntactically simple language
+and it is no coincidence the authors chose it to teach programming.</p>
+
+<p>Finally, I have used the awesome <a href="https://github.com/viebel/klipse">Klipse</a> Clojurescript plugin to make all
+Scheme code samples interactive. This means you can change any value and see the
+changes reflected on the result space!</p>
+
+<p>There are various solutions for the SICP exercises on the web, but these are
+mine.</p>
+
+<h1 id="chapter-1">Chapter 1</h1>
+
+<h2 id="section-1-1-6">Section 1.1.6</h2>
+
+<h3 id="exercise-1-1">Exercise 1.1</h3>
+
+<ul>
+<li>10</li>
+<li>12</li>
+<li>8</li>
+<li>3</li>
+<li>6</li>
+<li>nil</li>
+<li>nil</li>
+<li>19</li>
+<li>#f</li>
+<li>4</li>
+<li>16</li>
+<li>6</li>
+<li>16</li>
+</ul>
+
+<h3 id="exercise-1-2">Exercise 1.2</h3>
+
+<pre><code class="language-klipse-eval-scheme">  (/ (+ 5 4 (- 2
+               (- 3
+                  (+ 6
+                     (/ 4 5)))))
+     (* 3 (- 6 2) (- 2 7))
+</code></pre>
+
+<h3 id="exercise-1-3">Exercise 1.3</h3>
+
+<pre><code class="language-klipse-eval-scheme">(define (greatest-sum-squares a b c)
+  (if (&gt; a b)
+  (+ (* a a)
+  (if (&gt; b c) (* b b) (* c c)))
+  (+ (* b b)
+  (if (&gt; a c) (* a a) (* c c)))))
+
+(greatest-sum-squares 2 3 4)
+</code></pre>
+
+<h3 id="exercise-1-4">Exercise 1.4</h3>
+
+<p>When the <code>if</code> statement is evaluated, the operatior is chosen based on whether
+<code>b</code> is positive or negative, and results into calculating <code>a + |b|</code>.</p>
+
+<h3 id="exercise-1-5">Exercise 1.5</h3>
+
+<p>Using applicative-order evaluation the evaluation never terminates, because as
+it is trying to evaluate the operands, the algorithm falls into an infinite
+loop.</p>
+
+<p>Using normal-order evaluation, the algorithm does not try to evaluate <code>(p)</code>
+until it actually needs it. However, the computation terminates before that, as
+the <code>if</code> special form evaluates the first branch and returns <code>0</code>.</p>
+
+                
+                <br>
+                <p><a href="blog">Back to posts</a></p>
+            </div>
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'greenonion-github-com';
+    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-introduction-and-section-1.1.6\/';
+    var disqus_title = 'SICP Solutions: Introduction and section 1.1.6';
+    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-introduction-and-section-1.1.6\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+
+<script type="text/javascript">
+ hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<script src="https://greenonion.github.io/js/progressively.min.js"></script>
+<script>
+ progressively.init({delay: 30, throttle: 50});
+</script>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<script>
+ window.klipse_settings = {
+   
+   selector_eval_scheme: '.language-klipse-eval-scheme', 
+ };
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
+
+<style>
+  
+
+  
+ .CodeMirror {
+   padding: 0px;
+   background: none !important;
+   border: none !important;
+   border-bottom: solid 1px #90B4FE !important;
+ }
+
+ pre.CodeMirror-line {
+   padding: 0px !important;
+   margin: 0px !important;
+ }
+</style>
+
+
+</body>
+</html>
+

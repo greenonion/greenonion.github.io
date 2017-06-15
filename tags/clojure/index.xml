@@ -23,21 +23,24 @@ So not huge, but neither negligible.&lt;/p&gt;
 
 &lt;p&gt;Let me describe the situation. After some processing, I had a large
 vector of hash maps that looked like this:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;[{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;bc&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;de&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]}]
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;[{&amp;quot;ab&amp;quot; [1 0]} {&amp;quot;bc&amp;quot; [1 1]} {&amp;quot;de&amp;quot; [1 0]} {&amp;quot;ab&amp;quot; [1 1]}]
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;So each hash map was essentially mapping a string to a vector which
 contained two numbers. The catch is that there are duplicate strings
 there and the task was to merge them into one single hash map that
 would contain the sum of each number in the vectors. So the example
 above would become:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;bc&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;de&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; [2 1] &amp;quot;bc&amp;quot; [1 1] &amp;quot;de&amp;quot; [1 0]}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;“Easy enough”, I thought and proceeded to write:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;defn &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;merge-hashes-naive&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;coll&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;apply merge-with &lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;fn &lt;/span&gt;[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;))))
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (map + a b))))
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Experienced Clojure developers should already be cringing with my
 naivety.&lt;/p&gt;
@@ -46,10 +49,11 @@ naivety.&lt;/p&gt;
 I added the next function that things got bad. After merging all the
 hash maps, I needed to drop some of them and perform calculations based
 on some business rules. I decided to use a list comprehension:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;def &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;simple-list-comp&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;for &lt;/span&gt;[[&lt;span style=&#34;color: #B8860B&#34;&gt;k&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;]] &lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;]
-    &lt;span style=&#34;color: #B8860B&#34;&gt;:when&lt;/span&gt; &lt;span style=&#34;color: #008800; font-style: italic&#34;&gt;;; do stuff&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(def simple-list-comp [results]
+  (for [[k [a b]] results]
+    :when ;; do stuff
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;For small input, this worked fine. It wasn’t until I tried it using
 the full input that the stack overflow exception was thrown. And the
@@ -96,8 +100,9 @@ to deal with it eventually. So I thought I would take another look at
 the &lt;code&gt;simple-list-function&lt;/code&gt;. I removed all logic from it and just let it
 pass once through the input. Stack overflow. Then, I changed the
 destructuring:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF&#34;&gt;for &lt;/span&gt;[[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] &lt;span style=&#34;color: #B8860B&#34;&gt;results&lt;/span&gt;] &lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt;)
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(for [[a b] results] a)
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;em&gt;It didn’t blow up.&lt;/em&gt; Somehow, the destructuring of the vector was where
 the problem occurred (note to self: I should trust the stack traces
@@ -109,16 +114,19 @@ gets evaluated until the result is needed.&lt;/p&gt;
 &lt;p&gt;What this means is that whenever the call to &lt;code&gt;merge-with&lt;/code&gt; encountered
 a key it had seen before, instead of calculating the result, it wrapped
 the calculation inside a lazy seq and returned. For example, merging:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;[{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]} {&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;]}]
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;[{&amp;quot;ab&amp;quot; [1 0]} {&amp;quot;ab&amp;quot; [2 1]} {&amp;quot;ab&amp;quot; [0 1]}]
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;instead of returning just:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; [&lt;span style=&#34;color: #666666&#34;&gt;3&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt;]}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; [3 2]}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;would essentially return:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;{&lt;span style=&#34;color: #BB4444&#34;&gt;&amp;quot;ab&amp;quot;&lt;/span&gt; (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;[&lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] (&lt;span style=&#34;color: #AA22FF&#34;&gt;map + &lt;/span&gt;[&lt;span style=&#34;color: #666666&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt;] [&lt;span style=&#34;color: #666666&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color: #666666&#34;&gt;0&lt;/span&gt;]))}
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;{&amp;quot;ab&amp;quot; (map + [0 1] (map + [2 1] [1 0]))}
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;where the nested maps would only get evaluated when needed, which in my
 case was when destructuring the list comprehension arguments. Each
@@ -129,9 +137,10 @@ collection).&lt;/p&gt;
 
 &lt;p&gt;The easiest mitigation was to replace &lt;code&gt;map&lt;/code&gt; with its eager counterpart,
 &lt;code&gt;mapv&lt;/code&gt;:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34; style=&#34;background: #f8f8f8&#34;&gt;&lt;pre style=&#34;line-height: 125%&#34;&gt;&lt;span&gt;&lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;defn &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;merge-hashes-naive&lt;/span&gt; [&lt;span style=&#34;color: #B8860B&#34;&gt;coll&lt;/span&gt;]
-  (&lt;span style=&#34;color: #AA22FF&#34;&gt;apply merge-with &lt;/span&gt;(&lt;span style=&#34;color: #AA22FF; font-weight: bold&#34;&gt;fn &lt;/span&gt;[&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;] (&lt;span style=&#34;color: #00A000&#34;&gt;mapv&lt;/span&gt; &lt;span style=&#34;color: #AA22FF&#34;&gt;+ &lt;/span&gt;&lt;span style=&#34;color: #B8860B&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color: #B8860B&#34;&gt;b&lt;/span&gt;))))
-&lt;/pre&gt;&lt;/div&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-clj&#34;&gt;(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (mapv + a b))))
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;But the real gain was finally understanding that lazy evaluation
 happens all the time in Clojure. For example &lt;code&gt;map&lt;/code&gt;, &lt;code&gt;filter&lt;/code&gt;, &lt;code&gt;range&lt;/code&gt;

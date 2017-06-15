@@ -42,6 +42,7 @@
 
 
 
+
 </head>
 
 
@@ -146,21 +147,24 @@ So not huge, but neither negligible.</p>
 
 <p>Let me describe the situation. After some processing, I had a large
 vector of hash maps that looked like this:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>[{<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">0</span>]} {<span style="color: #BB4444">&quot;bc&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">1</span>]} {<span style="color: #BB4444">&quot;de&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">0</span>]} {<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">1</span>]}]
-</pre></div>
+
+<pre><code class="language-clj">[{&quot;ab&quot; [1 0]} {&quot;bc&quot; [1 1]} {&quot;de&quot; [1 0]} {&quot;ab&quot; [1 1]}]
+</code></pre>
 
 <p>So each hash map was essentially mapping a string to a vector which
 contained two numbers. The catch is that there are duplicate strings
 there and the task was to merge them into one single hash map that
 would contain the sum of each number in the vectors. So the example
 above would become:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>{<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">2</span> <span style="color: #666666">1</span>] <span style="color: #BB4444">&quot;bc&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">1</span>] <span style="color: #BB4444">&quot;de&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">0</span>]}
-</pre></div>
+
+<pre><code class="language-clj">{&quot;ab&quot; [2 1] &quot;bc&quot; [1 1] &quot;de&quot; [1 0]}
+</code></pre>
 
 <p>“Easy enough”, I thought and proceeded to write:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>(<span style="color: #AA22FF; font-weight: bold">defn </span><span style="color: #B8860B">merge-hashes-naive</span> [<span style="color: #B8860B">coll</span>]
-  (<span style="color: #AA22FF">apply merge-with </span>(<span style="color: #AA22FF; font-weight: bold">fn </span>[<span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>] (<span style="color: #AA22FF">map + </span><span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>))))
-</pre></div>
+
+<pre><code class="language-clj">(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (map + a b))))
+</code></pre>
 
 <p>Experienced Clojure developers should already be cringing with my
 naivety.</p>
@@ -169,10 +173,11 @@ naivety.</p>
 I added the next function that things got bad. After merging all the
 hash maps, I needed to drop some of them and perform calculations based
 on some business rules. I decided to use a list comprehension:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>(<span style="color: #AA22FF; font-weight: bold">def </span><span style="color: #B8860B">simple-list-comp</span> [<span style="color: #B8860B">results</span>]
-  (<span style="color: #AA22FF">for </span>[[<span style="color: #B8860B">k</span> [<span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>]] <span style="color: #B8860B">results</span>]
-    <span style="color: #B8860B">:when</span> <span style="color: #008800; font-style: italic">;; do stuff</span>
-</pre></div>
+
+<pre><code class="language-clj">(def simple-list-comp [results]
+  (for [[k [a b]] results]
+    :when ;; do stuff
+</code></pre>
 
 <p>For small input, this worked fine. It wasn’t until I tried it using
 the full input that the stack overflow exception was thrown. And the
@@ -219,8 +224,9 @@ to deal with it eventually. So I thought I would take another look at
 the <code>simple-list-function</code>. I removed all logic from it and just let it
 pass once through the input. Stack overflow. Then, I changed the
 destructuring:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>(<span style="color: #AA22FF">for </span>[[<span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>] <span style="color: #B8860B">results</span>] <span style="color: #B8860B">a</span>)
-</pre></div>
+
+<pre><code class="language-clj">(for [[a b] results] a)
+</code></pre>
 
 <p><em>It didn’t blow up.</em> Somehow, the destructuring of the vector was where
 the problem occurred (note to self: I should trust the stack traces
@@ -232,16 +238,19 @@ gets evaluated until the result is needed.</p>
 <p>What this means is that whenever the call to <code>merge-with</code> encountered
 a key it had seen before, instead of calculating the result, it wrapped
 the calculation inside a lazy seq and returned. For example, merging:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>[{<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">1</span> <span style="color: #666666">0</span>]} {<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">2</span> <span style="color: #666666">1</span>]} {<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">0</span> <span style="color: #666666">1</span>]}]
-</pre></div>
+
+<pre><code class="language-clj">[{&quot;ab&quot; [1 0]} {&quot;ab&quot; [2 1]} {&quot;ab&quot; [0 1]}]
+</code></pre>
 
 <p>instead of returning just:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>{<span style="color: #BB4444">&quot;ab&quot;</span> [<span style="color: #666666">3</span> <span style="color: #666666">2</span>]}
-</pre></div>
+
+<pre><code class="language-clj">{&quot;ab&quot; [3 2]}
+</code></pre>
 
 <p>would essentially return:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>{<span style="color: #BB4444">&quot;ab&quot;</span> (<span style="color: #AA22FF">map + </span>[<span style="color: #666666">0</span> <span style="color: #666666">1</span>] (<span style="color: #AA22FF">map + </span>[<span style="color: #666666">2</span> <span style="color: #666666">1</span>] [<span style="color: #666666">1</span> <span style="color: #666666">0</span>]))}
-</pre></div>
+
+<pre><code class="language-clj">{&quot;ab&quot; (map + [0 1] (map + [2 1] [1 0]))}
+</code></pre>
 
 <p>where the nested maps would only get evaluated when needed, which in my
 case was when destructuring the list comprehension arguments. Each
@@ -252,9 +261,10 @@ collection).</p>
 
 <p>The easiest mitigation was to replace <code>map</code> with its eager counterpart,
 <code>mapv</code>:</p>
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span>(<span style="color: #AA22FF; font-weight: bold">defn </span><span style="color: #B8860B">merge-hashes-naive</span> [<span style="color: #B8860B">coll</span>]
-  (<span style="color: #AA22FF">apply merge-with </span>(<span style="color: #AA22FF; font-weight: bold">fn </span>[<span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>] (<span style="color: #00A000">mapv</span> <span style="color: #AA22FF">+ </span><span style="color: #B8860B">a</span> <span style="color: #B8860B">b</span>))))
-</pre></div>
+
+<pre><code class="language-clj">(defn merge-hashes-naive [coll]
+  (apply merge-with (fn [a b] (mapv + a b))))
+</code></pre>
 
 <p>But the real gain was finally understanding that lazy evaluation
 happens all the time in Clojure. For example <code>map</code>, <code>filter</code>, <code>range</code>
@@ -292,19 +302,49 @@ book.</p>
 </section>
 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+
+<script type="text/javascript">
+ hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<script src="https://greenonion.github.io/js/progressively.min.js"></script>
+<script>
+ progressively.init({delay: 30, throttle: 50});
+</script>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="https://storage.googleapis.com/app.klipse.tech/css/codemirror.css">
+
+<script>
+ window.klipse_settings = {
+   
+   selector_eval_scheme: '.language-klipse-eval-scheme', 
+ };
+</script>
+<script src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
+
+<style>
   
 
-  <script type="text/javascript">
-    hljs.initHighlightingOnLoad();
-  </script>
+  
+ .CodeMirror {
+   padding: 0px;
+   background: none !important;
+   border: none !important;
+   border-bottom: solid 1px #90B4FE !important;
+ }
 
-
-
-  <script src="https://greenonion.github.io/js/progressively.min.js"></script>
-  <script>
-    progressively.init({delay: 30, throttle: 50});
-  </script>
+ pre.CodeMirror-line {
+   padding: 0px !important;
+   margin: 0px !important;
+ }
+</style>
 
 
 </body>
