@@ -21,7 +21,7 @@
 &lt;p&gt;I have been studying &lt;a href=&#34;https://mitpress.mit.edu/sicp/&#34;&gt;Structure and Interpretation of Computer Programs&lt;/a&gt; for
 about one and an half months now. As everyone familiar with the book will know,
 at least half of the work (and the knowledge!) is in its several exercises. I
-started documenting my process, writing down all solutions, but wasn&amp;rsquo;t sure
+started documenting my progress, writing down all solutions, but wasn&amp;rsquo;t sure
 whether I wanted to post them here. At first I wasn&amp;rsquo;t even sure I&amp;rsquo;d actually go
 through with the book, but as I&amp;rsquo;m reaching section 2.2.4 I am amazed by it and
 not intending to stop soon. Still, this doesn&amp;rsquo;t mean I&amp;rsquo;ll make it to the end,
@@ -29,7 +29,7 @@ and I&amp;rsquo;m not stressing about how long it will take. I&amp;rsquo;m here 
 It also goes without saying that you shouldn&amp;rsquo;t believe everyhting you read: some
 of these solutions might be incomplete or just plain wrong.&lt;/p&gt;
 
-&lt;p&gt;On a slightly practical note: I have been using &lt;a href=&#34;https://racket-lang.org&#34;&gt;Racket&lt;/a&gt; with it&amp;rsquo;s &lt;a href=&#34;compatibility layer&#34;&gt;SICP
+&lt;p&gt;On a slightly practical note: I have been using &lt;a href=&#34;https://racket-lang.org&#34;&gt;Racket&lt;/a&gt; with its &lt;a href=&#34;compatibility layer&#34;&gt;SICP
 collection&lt;/a&gt; for the exercises. I considered using &lt;a href=&#34;https://clojure.org&#34;&gt;Clojure&lt;/a&gt; (which I&amp;rsquo;m
 already familiar with) but decided against it, mainly because I wanted to follow
 the text as closely as I could. Scheme is a very syntactically simple language
