@@ -13,7 +13,7 @@
 
     <meta property="twitter:site" content="@@nikosfertakis">
 
-<meta property="twitter:title" content="Sicp">
+<meta property="twitter:title" content="SICP Solutions: Sections 1.2.3 and 1.2.4">
 
     <meta property="twitter:card" content="summary">
 
@@ -22,10 +22,10 @@
 <title>
 
 
-     Worn-out Shoes - Sicp 
+     Worn-out Shoes - SICP Solutions: Sections 1.2.3 and 1.2.4 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/tags/sicp/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/">
 
 
 <style media="screen">
@@ -899,8 +899,6 @@ margin-left: -4%;
 
 
 
-  <link href="https://greenonion.github.io/tags/sicp/index.xml" rel="alternate" type="application/rss+xml" title="Worn-out Shoes" />
-
 
 </head>
 
@@ -908,8 +906,8 @@ margin-left: -4%;
   <body>
 
     
-      <section class="header header-home">
-        
+    <section class="header">
+      
         <div class="container">
           <a href="https://greenonion.github.io/"></a>
           <div class="content">
@@ -940,42 +938,245 @@ margin-left: -4%;
         </div>
       </section>
 
-<section class="main">
+
+<section class="main post non-narrow zero-top-spacing">
     <div class="container">
         <div class="content">
-            <div class="posts">
-                <div class="page-heading">Posts about Sicp</div>
-                <ul>
-                    
-                        <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/"><span>SICP Solutions: Sections 1.2.3 and 1.2.4</span></a>
-</li>
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
 
-                    
-                        <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/"><span>SICP Solutions: Sections 1.2.1 and 1.2.2</span></a>
-</li>
+    SICP Solutions: Sections 1.2.3 and 1.2.4
 
-                    
-                        <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/"><span>SICP Solutions: Section 1.1.7</span></a>
-</li>
+</div>
 
+                </div>
+                <div class="meta">
+                    <div class="date" title="Fri Jun 16 2017 17:23:35 EEST">16 Jun, 2017</div>
                     
-                        <li class="post-item">
-    <span class="meta">15 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/"><span>SICP Solutions: Introduction and section 1.1.6</span></a>
-</li>
+                        
+                    
+                    <div class="reading-time"><div class="middot"></div>3 minute read</div>
+                    <div class="tags">
+                        <ul>
+                          
+                            <div class="middot"></div>
+                            <li><a href="https://greenonion.github.io/tags/sicp">sicp</a> </li>
+                          
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+    
+    
 
+<h3 id="section-1-2-3-orders-of-growth">Section 1.2.3 - Orders of Growth</h3>
+
+<h4 id="exercise-1-14">Exercise 1.14</h4>
+
+<p>The tree is big :)</p>
+
+<p>The recursive process reaches maximum depth when the denomination is a penny,
+for example <code>(cc 11 1)</code> will be $11$. This means that the growth of space will
+be $\Theta(n)$, where $n$ is the amount we want to change.</p>
+
+<p>For each denomination sub-tree, the maximum steps we will need to calculate is
+where the only remaining denomination is the penny, and the steps required will
+be exactly $n$. Since we have $5$ denominations, the time complexity will be
+$O(n^5)$.</p>
+
+<h4 id="exercise-1-15">Exercise 1.15</h4>
+
+<h5 id="a">a.</h5>
+
+<p>The procedure <code>p</code> will be applied each time <code>angle</code> is greater than $0.1$.
+Between iterations, <code>angle</code> will be divided by $3$. This means that with a
+starting <code>angle</code> of $12.15$ we will have <code>p</code> applied for $12.15, 4.16, 1.38,
+0.46$ and finally for $0.15$. So <code>p</code> will be applied $5$ times.</p>
+
+<h5 id="b">b.</h5>
+
+<p>The space required will be growing on the order of $O(\log_3(n))$, because each
+step will require to remember its parent to return to. Similarly, the time
+required will be $O(\log_3(n))$ as well.</p>
+
+<h3 id="section-1-2-4-exponentiation">Section 1.2.4 - Exponentiation</h3>
+
+<h4 id="exercise-1-16">Exercise 1.16</h4>
+
+<p>Using the definition of <code>even?</code> from before:</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (fast-expr b n)
+  (fast-expr-iter b n 1))
+
+(define (fast-expr-iter b n a)
+  (cond ((= n 1) a)
+        ((even? n) (fast-expr-iter b
+                                   (/ n 2)
+                                   (* a (* b b))))
+        (else (fast-expr-iter b (- n 1) (* a b)))))
+
+(fast-expr 2 3)
+</code></pre>
+
+<h4 id="exercise-1-17">Exercise 1.17</h4>
+
+<p>A recursive process:</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (double a) (* 2 a))
+
+(define (halve a) (/ a 2))
+
+(define (fast-multi a b)
+  (cond ((= a 1) b)
+        ((even? a) (fast-multi (halve a) (double b)))
+        (else (+ b (fast-multi (- a 1) b)))))
+
+(fast-multi 5 8)
+</code></pre>
+
+<h4 id="exercise-1-18">Exercise 1.18</h4>
+
+<p>Similarly to exercise 1.16, we will use a variable as accumulator:</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (double a) (* 2 a))
+
+(define (halve a) (/ a 2))
+
+(define (fast-mult a b)
+  (fast-mult-iter a b 0))
+
+(define (fast-mult-iter a b n)
+  (cond ((= a 0) n)
+        ((even? a) (fast-mult-iter (halve a) (double b) n))
+        (else (fast-mult-iter (- a 1) b (+ b n)))))
+
+(fast-multi 5 8)
+</code></pre>
+
+<h4 id="exercise-1-19">Exercise 1.19</h4>
+
+<p>First, we need to apply $T$ twice, to compute $T^2$. We start with:</p>
+
+<div>$$
+
+\begin{align*}
+  a &\leftarrow bq + aq + ap\\
+  b &\leftarrow bp + aq
+\end{align*}
+
+$$</div>
+
+<p>Which will then become:</p>
+
+<div>$$
+
+\begin{align*}
+  a &\leftarrow (bp + aq)q + (bp + aq + ap)q + (bq + aq + ap)p\\
+  b &\leftarrow (bp + aq)p + (bp + aq + ap)q
+\end{align*}
+
+$$</div>
+
+<p>Let&rsquo;s expand the first one:</p>
+
+<div>$$
+
+\begin{align*}
+  a &\leftarrow (bp + aq)q + (bp + aq + ap)q + (bq + aq + ap)p\\
+    &= bpq + aq^2 + bq^2 + aq^2 + apq + bpq + apq + ap^2 \\
+    &= b(2pq + q^2) + a(2pq + q^2) + a(q^2 + p^2)
+\end{align*}
+
+$$</div>
+
+<p>And in the same manner the second one:</p>
+
+<div>$$
+
+\begin{align*}
+  b &\leftarrow (bp + aq)p + (bp + aq + ap)q\\
+    &= bp^2 + apq + bq^2 + aq^2 + apq\\
+    &= b(p^2 + q^2) + a(2pq + q^2)
+\end{align*}
+
+$$</div>
+
+<p>So it turns out that we can name variables $p&rsquo;$ and $q&rsquo;$:</p>
+
+<div>$$
+
+\begin{align*}
+  p' &= p^2 + q^2\\
+  q' &= 2pq + q^2
+\end{align*}
+
+$$</div>
+
+<p>These values will essentially square $T$. So the logarithimic version of the
+Fibonacci procedure can be written as:</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (square n) (* n n))
+
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (square p) (square q))
+                   (+ (* 2 p q) (square q))
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+
+(fib 9)
+</code></pre>
+
+
+                <br>
+            </div>
+            
+                <div class="navigation">
                     
-                </ul>
+                    <div>
+                        <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/">SICP Solutions: Sections 1.2.1 and 1.2.2</a>
+                    </div>
+                    
+                    <div style="width: 100%;"></div>
+                    
+                </div>
+            
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'greenonion-github-com';
+    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-sections-1.2.3-and-1.2.4\/';
+    var disqus_title = 'SICP Solutions: Sections 1.2.3 and 1.2.4';
+    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-sections-1.2.3-and-1.2.4\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
             </div>
         </div>
     </div>
 </section>
+
 <section class="footer">
     <div class="container">
         <div class="copyright">

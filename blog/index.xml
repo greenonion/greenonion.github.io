@@ -7,8 +7,186 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright © 2017 Nikos Fertakis</copyright>
-    <lastBuildDate>Fri, 16 Jun 2017 13:53:44 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 16 Jun 2017 17:23:35 +0300</lastBuildDate>
     <atom:link href="https://greenonion.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SICP Solutions: Sections 1.2.3 and 1.2.4</title>
+      <link>https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/</link>
+      <pubDate>Fri, 16 Jun 2017 17:23:35 +0300</pubDate>
+      
+      <guid>https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/</guid>
+      <description>
+
+&lt;h3 id=&#34;section-1-2-3-orders-of-growth&#34;&gt;Section 1.2.3 - Orders of Growth&lt;/h3&gt;
+
+&lt;h4 id=&#34;exercise-1-14&#34;&gt;Exercise 1.14&lt;/h4&gt;
+
+&lt;p&gt;The tree is big :)&lt;/p&gt;
+
+&lt;p&gt;The recursive process reaches maximum depth when the denomination is a penny,
+for example &lt;code&gt;(cc 11 1)&lt;/code&gt; will be $11$. This means that the growth of space will
+be $\Theta(n)$, where $n$ is the amount we want to change.&lt;/p&gt;
+
+&lt;p&gt;For each denomination sub-tree, the maximum steps we will need to calculate is
+where the only remaining denomination is the penny, and the steps required will
+be exactly $n$. Since we have $5$ denominations, the time complexity will be
+$O(n^5)$.&lt;/p&gt;
+
+&lt;h4 id=&#34;exercise-1-15&#34;&gt;Exercise 1.15&lt;/h4&gt;
+
+&lt;h5 id=&#34;a&#34;&gt;a.&lt;/h5&gt;
+
+&lt;p&gt;The procedure &lt;code&gt;p&lt;/code&gt; will be applied each time &lt;code&gt;angle&lt;/code&gt; is greater than $0.1$.
+Between iterations, &lt;code&gt;angle&lt;/code&gt; will be divided by $3$. This means that with a
+starting &lt;code&gt;angle&lt;/code&gt; of $12.15$ we will have &lt;code&gt;p&lt;/code&gt; applied for $12.15, 4.16, 1.38,
+0.46$ and finally for $0.15$. So &lt;code&gt;p&lt;/code&gt; will be applied $5$ times.&lt;/p&gt;
+
+&lt;h5 id=&#34;b&#34;&gt;b.&lt;/h5&gt;
+
+&lt;p&gt;The space required will be growing on the order of $O(\log_3(n))$, because each
+step will require to remember its parent to return to. Similarly, the time
+required will be $O(\log_3(n))$ as well.&lt;/p&gt;
+
+&lt;h3 id=&#34;section-1-2-4-exponentiation&#34;&gt;Section 1.2.4 - Exponentiation&lt;/h3&gt;
+
+&lt;h4 id=&#34;exercise-1-16&#34;&gt;Exercise 1.16&lt;/h4&gt;
+
+&lt;p&gt;Using the definition of &lt;code&gt;even?&lt;/code&gt; from before:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (fast-expr b n)
+  (fast-expr-iter b n 1))
+
+(define (fast-expr-iter b n a)
+  (cond ((= n 1) a)
+        ((even? n) (fast-expr-iter b
+                                   (/ n 2)
+                                   (* a (* b b))))
+        (else (fast-expr-iter b (- n 1) (* a b)))))
+
+(fast-expr 2 3)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;exercise-1-17&#34;&gt;Exercise 1.17&lt;/h4&gt;
+
+&lt;p&gt;A recursive process:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (double a) (* 2 a))
+
+(define (halve a) (/ a 2))
+
+(define (fast-multi a b)
+  (cond ((= a 1) b)
+        ((even? a) (fast-multi (halve a) (double b)))
+        (else (+ b (fast-multi (- a 1) b)))))
+
+(fast-multi 5 8)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;exercise-1-18&#34;&gt;Exercise 1.18&lt;/h4&gt;
+
+&lt;p&gt;Similarly to exercise 1.16, we will use a variable as accumulator:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (double a) (* 2 a))
+
+(define (halve a) (/ a 2))
+
+(define (fast-mult a b)
+  (fast-mult-iter a b 0))
+
+(define (fast-mult-iter a b n)
+  (cond ((= a 0) n)
+        ((even? a) (fast-mult-iter (halve a) (double b) n))
+        (else (fast-mult-iter (- a 1) b (+ b n)))))
+
+(fast-multi 5 8)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;exercise-1-19&#34;&gt;Exercise 1.19&lt;/h4&gt;
+
+&lt;p&gt;First, we need to apply $T$ twice, to compute $T^2$. We start with:&lt;/p&gt;
+
+&lt;div&gt;$$
+
+\begin{align*}
+  a &amp;\leftarrow bq + aq + ap\\
+  b &amp;\leftarrow bp + aq
+\end{align*}
+
+$$&lt;/div&gt;
+
+&lt;p&gt;Which will then become:&lt;/p&gt;
+
+&lt;div&gt;$$
+
+\begin{align*}
+  a &amp;\leftarrow (bp + aq)q + (bp + aq + ap)q + (bq + aq + ap)p\\
+  b &amp;\leftarrow (bp + aq)p + (bp + aq + ap)q
+\end{align*}
+
+$$&lt;/div&gt;
+
+&lt;p&gt;Let&amp;rsquo;s expand the first one:&lt;/p&gt;
+
+&lt;div&gt;$$
+
+\begin{align*}
+  a &amp;\leftarrow (bp + aq)q + (bp + aq + ap)q + (bq + aq + ap)p\\
+    &amp;= bpq + aq^2 + bq^2 + aq^2 + apq + bpq + apq + ap^2 \\
+    &amp;= b(2pq + q^2) + a(2pq + q^2) + a(q^2 + p^2)
+\end{align*}
+
+$$&lt;/div&gt;
+
+&lt;p&gt;And in the same manner the second one:&lt;/p&gt;
+
+&lt;div&gt;$$
+
+\begin{align*}
+  b &amp;\leftarrow (bp + aq)p + (bp + aq + ap)q\\
+    &amp;= bp^2 + apq + bq^2 + aq^2 + apq\\
+    &amp;= b(p^2 + q^2) + a(2pq + q^2)
+\end{align*}
+
+$$&lt;/div&gt;
+
+&lt;p&gt;So it turns out that we can name variables $p&amp;rsquo;$ and $q&amp;rsquo;$:&lt;/p&gt;
+
+&lt;div&gt;$$
+
+\begin{align*}
+  p&#39; &amp;= p^2 + q^2\\
+  q&#39; &amp;= 2pq + q^2
+\end{align*}
+
+$$&lt;/div&gt;
+
+&lt;p&gt;These values will essentially square $T$. So the logarithimic version of the
+Fibonacci procedure can be written as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (square n) (* n n))
+
+(define (fib n)
+  (fib-iter 1 0 0 1 n))
+
+(define (fib-iter a b p q count)
+  (cond ((= count 0) b)
+        ((even? count)
+         (fib-iter a
+                   b
+                   (+ (square p) (square q))
+                   (+ (* 2 p q) (square q))
+                   (/ count 2)))
+        (else (fib-iter (+ (* b q) (* a q) (* a p))
+                        (+ (* b p) (* a q))
+                        p
+                        q
+                        (- count 1)))))
+
+(fib 9)
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>SICP Solutions: Sections 1.2.1 and 1.2.2</title>
