@@ -7,8 +7,98 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright © 2017 Nikos Fertakis</copyright>
-    <lastBuildDate>Thu, 15 Jun 2017 19:39:51 +0300</lastBuildDate>
+    <lastBuildDate>Fri, 16 Jun 2017 13:10:57 +0300</lastBuildDate>
     <atom:link href="https://greenonion.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SICP Solutions: Section 1.1.7</title>
+      <link>https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/</link>
+      <pubDate>Fri, 16 Jun 2017 13:10:57 +0300</pubDate>
+      
+      <guid>https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/</guid>
+      <description>
+
+&lt;h2 id=&#34;section-1-1-7&#34;&gt;Section 1.1.7&lt;/h2&gt;
+
+&lt;h3 id=&#34;exercise-1-6&#34;&gt;Exercise 1.6&lt;/h3&gt;
+
+&lt;p&gt;If &lt;code&gt;if&lt;/code&gt; is not a special form, and is a procedure based on &lt;code&gt;cond&lt;/code&gt; instead, it
+would lose its short-circuiting property, as, due to applicative-order
+evaluation, all of the arguments would need be evaluated just as the
+&lt;code&gt;new-if&lt;/code&gt; procedure would be called.&lt;/p&gt;
+
+&lt;p&gt;In our case, the program would fall into an infinite loop, always trying to
+evaluate the next &lt;code&gt;sqrt-iter&lt;/code&gt;, even if &lt;code&gt;good-enough?&lt;/code&gt; would return true.&lt;/p&gt;
+
+&lt;h3 id=&#34;exercise-1-7&#34;&gt;Exercise 1.7&lt;/h3&gt;
+
+&lt;p&gt;For very small numbers, &lt;code&gt;0.001&lt;/code&gt; will be of the same order of magnitude with the
+solution. This means that the tolerance will not be adequate to reach a
+good-enough solution. For example, calculating the square root of &lt;code&gt;0.0001&lt;/code&gt;
+itself (which is &lt;code&gt;0.01&lt;/code&gt;), our algorithm will yield:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-scheme&#34;&gt;&amp;gt; (sqrt 0.0001)
+0.0323084483304812
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-scheme&#34;&gt;&amp;gt; (square 0.032)
+0.001024
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For very large numbers, the algorithm might never terminate because the machine
+precision will not be able to represent small differences between large numbers.
+This means that &lt;code&gt;good-enough?&lt;/code&gt; will never return &lt;code&gt;#t&lt;/code&gt;. The tipping point is
+between \( 10^{12} \) (which returns) and \( 10^{13} \) (which runs
+infinitely).&lt;/p&gt;
+
+&lt;p&gt;What happens is that after a few iterations, the &lt;code&gt;guess&lt;/code&gt; will be
+&lt;code&gt;3,162,277.6601683795&lt;/code&gt;. When running &lt;code&gt;good-enough?&lt;/code&gt;, the procedure will try to
+square it, yielding &lt;code&gt;10,000,000,000,000.002&lt;/code&gt;, which isn&amp;rsquo;t good enough according
+to the &lt;code&gt;0.001&lt;/code&gt; desired error. When trying to improve this, the procedure will
+need the average of the guess and of the &lt;code&gt;x/y = 3,162,277.660168379&lt;/code&gt;. However,
+this reaches the limit of the numbers that can be represented, and the average
+is again &lt;code&gt;3,162,277.6601683795&lt;/code&gt; which means &lt;code&gt;guess&lt;/code&gt; will remain unchanged and
+the program will enter an infinite loop.&lt;/p&gt;
+
+&lt;p&gt;To improve, we can use the following listing which uses the suggested solution
+of making sure that the guess actually improves between runs, again using the
+value &lt;code&gt;0.001&lt;/code&gt; as a threshold - if the ratio between or old guess and the new
+one hasn&amp;rsquo;t changed at least by that number, then we consider our calculations
+finished.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-klipse-eval-scheme&#34;&gt;(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (guess-improved? guess old-guess)
+  (&amp;gt; (abs (- 1 (/ guess old-guess))) 0.001))
+
+(define (sqrt-iter guess old-guess x)
+  (if (guess-improved? guess old-guess)
+    (sqrt-iter (improve guess x)
+               guess
+               x)
+    guess))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x x))
+
+(sqrt 0.0001)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;exercise-1-8&#34;&gt;Exercise 1.8&lt;/h3&gt;
+
+&lt;p&gt;We just need to use a different &lt;code&gt;improve&lt;/code&gt; procedure:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-scheme&#34;&gt;  (define (improve guess x)
+    (/ (+ (/ x (square guess))
+       (* 2 guess))
+     3))
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>SICP Solutions: Introduction and section 1.1.6</title>

@@ -13,7 +13,7 @@
 
     <meta property="twitter:site" content="@@nikosfertakis">
 
-<meta property="twitter:title" content="404 Page not found">
+<meta property="twitter:title" content="SICP Solutions: Section 1.1.7">
 
     <meta property="twitter:card" content="summary">
 
@@ -22,10 +22,10 @@
 <title>
 
 
-     Worn-out Shoes - 404 Page not found 
+     Worn-out Shoes - SICP Solutions: Section 1.1.7 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/404/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/">
 
 
 <style media="screen">
@@ -899,8 +899,6 @@ margin-left: -4%;
 
 
 
-  <link href="https://greenonion.github.io/404.html/index.xml" rel="alternate" type="application/rss+xml" title="Worn-out Shoes" />
-
 
 </head>
 
@@ -908,8 +906,8 @@ margin-left: -4%;
   <body>
 
     
-      <section class="header header-home">
-        
+    <section class="header">
+      
         <div class="container">
           <a href="https://greenonion.github.io/"></a>
           <div class="content">
@@ -940,15 +938,157 @@ margin-left: -4%;
         </div>
       </section>
 
-<section class="main">
-    <div class="container f04">
+
+<section class="main post non-narrow zero-top-spacing">
+    <div class="container">
         <div class="content">
-            <div class="num">404</div>
-            <div class="detail">Sorry, this page does not exist.</div>
-            <div class="suggestion"><a href="https://greenonion.github.io/">Visit home page</a></div>
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    SICP Solutions: Section 1.1.7
+
+</div>
+
+                </div>
+                <div class="meta">
+                    <div class="date" title="Fri Jun 16 2017 13:10:57 EEST">16 Jun, 2017</div>
+                    
+                        
+                    
+                    <div class="reading-time"><div class="middot"></div>2 minute read</div>
+                    <div class="tags">
+                        <ul>
+                          
+                            <div class="middot"></div>
+                            <li><a href="https://greenonion.github.io/tags/sicp">sicp</a> </li>
+                          
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+    
+    
+
+<h2 id="section-1-1-7">Section 1.1.7</h2>
+
+<h3 id="exercise-1-6">Exercise 1.6</h3>
+
+<p>If <code>if</code> is not a special form, and is a procedure based on <code>cond</code> instead, it
+would lose its short-circuiting property, as, due to applicative-order
+evaluation, all of the arguments would need be evaluated just as the
+<code>new-if</code> procedure would be called.</p>
+
+<p>In our case, the program would fall into an infinite loop, always trying to
+evaluate the next <code>sqrt-iter</code>, even if <code>good-enough?</code> would return true.</p>
+
+<h3 id="exercise-1-7">Exercise 1.7</h3>
+
+<p>For very small numbers, <code>0.001</code> will be of the same order of magnitude with the
+solution. This means that the tolerance will not be adequate to reach a
+good-enough solution. For example, calculating the square root of <code>0.0001</code>
+itself (which is <code>0.01</code>), our algorithm will yield:</p>
+
+<pre><code class="language-scheme">&gt; (sqrt 0.0001)
+0.0323084483304812
+</code></pre>
+
+<pre><code class="language-scheme">&gt; (square 0.032)
+0.001024
+</code></pre>
+
+<p>For very large numbers, the algorithm might never terminate because the machine
+precision will not be able to represent small differences between large numbers.
+This means that <code>good-enough?</code> will never return <code>#t</code>. The tipping point is
+between \( 10^{12} \) (which returns) and \( 10^{13} \) (which runs
+infinitely).</p>
+
+<p>What happens is that after a few iterations, the <code>guess</code> will be
+<code>3,162,277.6601683795</code>. When running <code>good-enough?</code>, the procedure will try to
+square it, yielding <code>10,000,000,000,000.002</code>, which isn&rsquo;t good enough according
+to the <code>0.001</code> desired error. When trying to improve this, the procedure will
+need the average of the guess and of the <code>x/y = 3,162,277.660168379</code>. However,
+this reaches the limit of the numbers that can be represented, and the average
+is again <code>3,162,277.6601683795</code> which means <code>guess</code> will remain unchanged and
+the program will enter an infinite loop.</p>
+
+<p>To improve, we can use the following listing which uses the suggested solution
+of making sure that the guess actually improves between runs, again using the
+value <code>0.001</code> as a threshold - if the ratio between or old guess and the new
+one hasn&rsquo;t changed at least by that number, then we consider our calculations
+finished.</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (guess-improved? guess old-guess)
+  (&gt; (abs (- 1 (/ guess old-guess))) 0.001))
+
+(define (sqrt-iter guess old-guess x)
+  (if (guess-improved? guess old-guess)
+    (sqrt-iter (improve guess x)
+               guess
+               x)
+    guess))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x x))
+
+(sqrt 0.0001)
+</code></pre>
+
+<h3 id="exercise-1-8">Exercise 1.8</h3>
+
+<p>We just need to use a different <code>improve</code> procedure:</p>
+
+<pre><code class="language-scheme">  (define (improve guess x)
+    (/ (+ (/ x (square guess))
+       (* 2 guess))
+     3))
+</code></pre>
+
+
+                <br>
+            </div>
+            
+                <div class="navigation">
+                    
+                    <div>
+                        <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/">SICP Solutions: Introduction and section 1.1.6</a>
+                    </div>
+                    
+                    <div style="width: 100%;"></div>
+                    
+                </div>
+            
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'greenonion-github-com';
+    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-section-1.1.7\/';
+    var disqus_title = 'SICP Solutions: Section 1.1.7';
+    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-section-1.1.7\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
         </div>
     </div>
 </section>
+
 <section class="footer">
     <div class="container">
         <div class="copyright">
