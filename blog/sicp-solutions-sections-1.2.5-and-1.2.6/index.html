@@ -2,7 +2,6 @@
 <html lang="en-us">
 
   <head>
-	<meta name="generator" content="Hugo 0.19" />
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 <meta name="HandheldFriendly" content="True">
@@ -14,19 +13,19 @@
 
     <meta property="twitter:site" content="@@nikosfertakis">
 
-<meta property="twitter:title" content="Worn-out Shoes">
+<meta property="twitter:title" content="SICP Solutions: Sections 1.2.5 and 1.2.6">
 
     <meta property="twitter:card" content="summary">
 
-<meta property="twitter:description" content="Thoughts">
+<meta property="twitter:description" content="">
 
 <title>
 
 
-    Worn-out Shoes
+     Worn-out Shoes - SICP Solutions: Sections 1.2.5 and 1.2.6 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.5-and-1.2.6/">
 
 
 <style media="screen">
@@ -900,8 +899,6 @@ margin-left: -4%;
 
 
 
-  <link href="https://greenonion.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Worn-out Shoes" />
-
 
 </head>
 
@@ -909,8 +906,8 @@ margin-left: -4%;
   <body>
 
     
-      <section class="header header-home">
-        
+    <section class="header">
+      
         <div class="container">
           <a href="https://greenonion.github.io/"></a>
           <div class="content">
@@ -941,73 +938,322 @@ margin-left: -4%;
         </div>
       </section>
 
-<section class="main">
+
+<section class="main post non-narrow zero-top-spacing">
     <div class="container">
         <div class="content">
-            
-                <div class="markdown">
-                <p>Thoughts on programming, data, and the art of stressing over a huge pile of
-unread books.</p>
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    SICP Solutions: Sections 1.2.5 and 1.2.6
+
+</div>
 
                 </div>
+                <div class="meta">
+                    <div class="date" title="Fri Jun 16 2017 17:23:35 EEST">16 Jun, 2017</div>
+                    
+                        
+                    
+                    <div class="reading-time"><div class="middot"></div>6 minute read</div>
+                    <div class="tags">
+                        <ul>
+                          
+                            <div class="middot"></div>
+                            <li><a href="https://greenonion.github.io/tags/sicp">sicp</a> </li>
+                          
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+    
+    
+
+<h3 id="section-1-2-5-greatest-common-divisors">Section 1.2.5 - Greatest Common Divisors</h3>
+
+<h4 id="exercise-1-20">Exercise 1.20</h4>
+
+<p>The difference between applicative and normal order is that applicative first
+evaluates the arguments and then applies the procedure. In contrast, normal
+order first expands the procedure and then reduces it. Also note that <code>if</code> is a
+special form, where which (and whether) procedure is evaluated depends on the
+predicate.</p>
+
+<p>Let&rsquo;s first see the applicative order:</p>
+
+<pre><code class="language-scheme">(gcd 206 40) ;; apply if, second branch produces
+(gcd 40 (remainder 206 40)) ;; remember, we evaluate arguments first
+(gcd 40 6)
+(gcd 40 (remainder 40 6)) ;; 2nd time we need remainder
+(gcd 6 4)
+(gcd 4 (remainder 4 6)) ;; 3rd time
+(gcd 4 2)
+(gcd 2 (remainder 4 2)) ;; 4th time
+(gcd 2 0) ;; the predicate is true
+2
+</code></pre>
+
+<p>In the normal order, we first expand and then apply only as needed. So:</p>
+
+<pre><code class="language-scheme">(gcd 206 40) ;; apply if, second branch produces
+(gcd 40 (remainder 206 40)) ;; the if will be as follows
+;; apply gcd
+(if (= (remainder 206 40) 0) ;; this gets evaluated, so 1 call
+    40
+    (gcd (remainder 206 40)
+         (remainder 40 (remainder 206 40))))
+;; apply gcd
+(if (= (remainder 40 (remainder 206 40)) 0) ;; 2 calls
+    (remainder 206 40)
+    (gcd (remainder 40 (remainder 206 40))
+         (remainder
+           (remainder 206 40
+             (remainder 40 (remainder 206 40))))))
+;; apply gcd
+(if (= (rem (rem 206 40) (rem 40 (rem 206 40))) 0) ;; 4 calls
+    (rem 40 (rem 206 40))
+    (gcd (rem (rem 206 40) (rem 40 (rem 206 40)))
+         (rem
+           (rem 40 (rem 206 40))
+           (rem (rem 206 40) (rem 40 (rem 206 40))))))
+;; apply gcd
+;; this time the predicate will be b from the previous
+;; iteration which contains 7 calls to remainder but
+;; evaluates to 0 so we evaluate a from the previous
+;; iteration (4 calls to remainder) and we are done.
+</code></pre>
+
+<p>So in summary, the normal order will need:
+$1 + 2 + 4 + 7 + 4 = 18$ calls to <code>remainder</code>.</p>
+
+<h3 id="section-1-2-6-example-testing-for-primality">Section 1.2.6 - Example: Testing for Primality</h3>
+
+<h4 id="exercise-1-21">Exercise 1.21</h4>
+
+<pre><code class="language-scheme">&gt; (smallest-divisor 199)
+199
+&gt; (smallest-divisor 1999)
+1999
+&gt; (smallest-divisor 19999)
+7
+</code></pre>
+
+<p>So while $199$ and $1999$ are primes, $19999$ is not.</p>
+
+<h4 id="exercise-1-22">Exercise 1.22</h4>
+
+<p>$\sqrt{10} = 3.17$. This means that we expect time to roughly triple between
+orders of magnitude. Our results are:</p>
+
+<pre><code class="language-scheme">;; Greater than 1,000
+;; 1009 *** 3
+;; 1013 *** 2
+;; 1019 *** 2
+;; Greater than 10,000
+;; 10007 *** 6
+;; 10009 *** 6
+;; 10037 *** 6
+;; Greater than 100,000
+;; 100003 *** 17
+;; 100019 *** 18
+;; 100043 *** 18
+;; Greater than 1,000,000
+;; 1000003 *** 59
+;; 1000033 *** 59
+;; 1000037 *** 59
+</code></pre>
+
+<p>The results roughly confirm our calculations. We wouldn&rsquo;t expect exact results
+since the actual timing depends on a lot of things.</p>
+
+<h4 id="exercise-1-23">Exercise 1.23</h4>
+
+<pre><code class="language-scheme">(define (next n)
+  (if (= n 2)
+      3
+      (+ n 2)))
+</code></pre>
+
+<pre><code>;; 1009 *** 6
+;; 1013 *** 6
+;; 1019 *** 6
+;; 10007 *** 9
+;; 10009 *** 8
+;; 10037 *** 8
+;; 100003 *** 16
+;; 100019 *** 15
+;; 100043 *** 16
+;; 1000003 *** 41
+;; 1000033 *** 40
+;; 1000037 *** 40
+</code></pre>
+
+<p>Essentially the steps taken by the algorithm will now be limited by
+$\sqrt{n}/2$. This means that $\sqrt{n}$ will still dominate the algorithm, but
+given a large-enough input the time will be roughly halved.</p>
+
+<h4 id="exercise-1-24">Exercise 1.24</h4>
+
+<pre><code class="language-scheme">;; 1009 *** 13
+;; 1013 *** 13
+;; 1019 *** 13
+;; 10007 *** 15
+;; 10009 *** 14
+;; 10037 *** 14
+;; 100003 *** 21
+;; 100019 *** 16
+;; 100043 *** 16
+;; 1000003 *** 17
+;; 1000033 *** 18
+;; 1000037 *** 19
+</code></pre>
+
+<p>We would expect the time to test primes near $1,000,000$ to be roughly the
+triple of the time to test primes near $1,000$. We do not obseve even that kind
+of change, probably due to fast hardware, but we do observe that the runtime
+grows very slowly.</p>
+
+<h4 id="exercise-1-25">Exercise 1.25</h4>
+
+<p>While conceptually Alyssa is correct, in practice the call to <code>fast-expt</code> will
+result in dealing with big numbers, and trying to find their <code>remainder</code>. Our
+<code>expmod</code> method will always find the remainder of small numbers, multiply them
+together, find their remainder, etc. See footnote 46. Bear in mind also that
+primality checks are usually done for very large numbers.</p>
+
+<p>The results are pretty grave in practice:</p>
+
+<pre><code class="language-scheme">;; 1009 *** 92
+;; 1013 *** 102
+;; 1019 *** 83
+;; 10007 *** 3071
+;; 10009 *** 3192
+;; 10037 *** 2880
+</code></pre>
+
+<h4 id="exercise-1-26">Exercise 1.26</h4>
+
+<p>By rewriting the <code>expmod</code> procedure to use explicit multiplication, Louis has
+changed it into a tree recursive process from a linear one. This means that in
+each steps two subtrees will be created, and the amount of calls grow
+exponentially. So $2^{\log n} = n$.</p>
+
+<h4 id="exercise-1-27">Exercise 1.27</h4>
+
+<p>We create a procedure <code>congruent?</code> as such:</p>
+
+<pre><code class="language-scheme">(define (congruent? n)
+  (congruent-iter n 0))
+
+(define (congruent-iter n a)
+  (cond ((= a n) true)
+        ((= (expmod a n n) a) (congruent-iter n (+ a 1)))
+        (else false)))
+</code></pre>
+
+<p>Calling the procedure for the Carmichael numbers of footnote 47 (561, 1105,
+1729, 2465, 2821 and 6601) we always get <code>#t</code>. The <code>fast-prime?</code> procedure would
+be fooled. However, we can use the <code>prime?</code> procedure to confirm that these
+numbers are not primes.</p>
+
+<h4 id="exercise-1-28">Exercise 1.28</h4>
+
+<p>First we create the function that performs the check and short-circuits the
+computation:</p>
+
+<pre><code class="language-scheme">(define (miller-rabin-check a m)
+  (if (and (not (= a 1))
+           (not (= a (- m 1)))
+           (= (remainder (square a) m) 1))
+      0
+      a))
+</code></pre>
+
+<p>We want to use the above before squaring the result of each iteration. Since we
+cannot store variables yet, what we can do is wrap the <code>expmod</code> call to itself
+inside a <code>miller-rabin-check</code> call. <code>miller-rabin-check</code> will get the result of
+the previous iteration as input, and check whether it is a non-trivial square
+root of 1. If it is, it will return 0, essentially short-circuting the result.
+If it is not, it will return the result, thus letting <code>expmod</code> continue as
+usual.</p>
+
+<pre><code class="language-scheme">(define (miller-rabin-expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder
+          (square
+           (miller-rabin-check
+            (miller-rabin-expmod base (/ exp 2) m) m)) m))
+        (else
+         (remainder (* base
+          (miller-rabin-expmod base (- exp 1) m))
+          m))))
+</code></pre>
+
+<p>Finally, we can run the check for half the size of the input to make sure we
+produce the correct answer:</p>
+
+<pre><code class="language-scheme">(define (miller-rabin-test n)
+  (define (try-it a)
+    (= (miller-rabin-expmod a (- n 1) n) 1))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (miller-rabin-prime? n)
+  (define (test-prime times)
+    (cond ((&lt;= times 0) true)
+          ((miller-rabin-test n) (test-prime (- times 1)))
+          (else false)))
+  (test-prime (/ n 2)))
+</code></pre>
+
+<p>We can use both the prime numbers we found and the Carmichael numbers to confirm
+that our new procedure always produces the correct result and is not fooled.</p>
+
+
+                <br>
+            </div>
             
-
-            
-                <div class="posts">
-                
-                
-                    <div class="page-heading">Latest posts</div>
-                    <ul>
+                <div class="navigation">
                     
-                        <li class="groupby">Jun, 2017</li>
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.5-and-1.2.6/"><span>SICP Solutions: Sections 1.2.5 and 1.2.6</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/"><span>SICP Solutions: Sections 1.2.3 and 1.2.4</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/"><span>SICP Solutions: Sections 1.2.1 and 1.2.2</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/"><span>SICP Solutions: Section 1.1.7</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">15 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/"><span>SICP Solutions: Introduction and section 1.1.6</span></a>
-</li>
-
-                        
+                    <div>
+                        <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/">SICP Solutions: Sections 1.2.1 and 1.2.2</a>
+                    </div>
                     
-                    </ul>
-
+                    <div style="width: 100%;"></div>
                     
-                        <a href="./blog/" class="see-more">See more ...</a>
+                    <div>
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/">SICP Solutions: Sections 1.2.3 and 1.2.4</a>
+                        <img class="icon" src="https://greenonion.github.io/img/next.svg" alt="next" />
+                    </div>
                     
-                
                 </div>
             
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'greenonion-github-com';
+    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-sections-1.2.5-and-1.2.6\/';
+    var disqus_title = 'SICP Solutions: Sections 1.2.5 and 1.2.6';
+    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-sections-1.2.5-and-1.2.6\/';
 
-            <div class="best-posts">
-            
-            
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
             </div>
         </div>
     </div>
 </section>
+
 <section class="footer">
     <div class="container">
         <div class="copyright">
@@ -1160,5 +1406,4 @@ unread books.</p>
 
 </body>
 </html>
-
 
