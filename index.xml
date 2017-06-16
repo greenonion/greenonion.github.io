@@ -29,7 +29,9 @@ through with the book, but as I&amp;rsquo;m reaching section 2.2.4 I am amazed b
 not intending to stop soon. Still, this doesn&amp;rsquo;t mean I&amp;rsquo;ll make it to the end,
 and I&amp;rsquo;m not stressing about how long it will take. I&amp;rsquo;m here for the long haul.
 It also goes without saying that you shouldn&amp;rsquo;t believe everyhting you read: some
-of these solutions might be incomplete or just plain wrong.&lt;/p&gt;
+of these solutions might be incomplete or just plain wrong. Also usually I
+compare my notes to &lt;a href=&#34;http://eli.thegreenplace.net/tag/sicp&#34;&gt;Eli Bendersky&amp;rsquo;s&lt;/a&gt;, he has done an amazing job documenting
+his progress and certainly inspired me.&lt;/p&gt;
 
 &lt;p&gt;On a slightly practical note: I have been using &lt;a href=&#34;https://racket-lang.org&#34;&gt;Racket&lt;/a&gt; with its &lt;a href=&#34;compatibility layer&#34;&gt;SICP
 collection&lt;/a&gt; for the exercises. I considered using &lt;a href=&#34;https://clojure.org&#34;&gt;Clojure&lt;/a&gt; (which I&amp;rsquo;m
@@ -101,23 +103,6 @@ loop.&lt;/p&gt;
 &lt;p&gt;Using normal-order evaluation, the algorithm does not try to evaluate &lt;code&gt;(p)&lt;/code&gt;
 until it actually needs it. However, the computation terminates before that, as
 the &lt;code&gt;if&lt;/code&gt; special form evaluates the first branch and returns &lt;code&gt;0&lt;/code&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Clojure Code Poster</title>
-      <link>https://greenonion.github.io/blog/clojure-code-poster/</link>
-      <pubDate>Sun, 12 Mar 2017 19:16:22 +0200</pubDate>
-      
-      <guid>https://greenonion.github.io/blog/clojure-code-poster/</guid>
-      <description>&lt;p&gt;A few days ago, one of my colleagues pointed me to an article called &lt;a href=&#34;http://www.east5th.co/blog/2017/02/13/build-your-own-code-poster-with-elixir/&#34;&gt;Build Your
-Own Code Poster With Elixir&lt;/a&gt;,
-adding that he liked the concept and would try an implementation in Go.&lt;/p&gt;
-
-&lt;p&gt;Creating images from text in an automated way is a subject that has always
-fascinated me, but I never spent any time trying to understand it. After a quick
-glance at the aforementioned blog post I decided I would try my hand at an
-implementation in Clojure.&lt;/p&gt;
 </description>
     </item>
     
