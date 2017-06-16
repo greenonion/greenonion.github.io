@@ -13,7 +13,7 @@
 
     <meta property="twitter:site" content="@@nikosfertakis">
 
-<meta property="twitter:title" content="Lazy Evaluation in Clojure">
+<meta property="twitter:title" content="Sicp">
 
     <meta property="twitter:card" content="summary">
 
@@ -22,10 +22,10 @@
 <title>
 
 
-     Worn-out Shoes - Lazy Evaluation in Clojure 
+     Worn-out Shoes - Sicp 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/blog/lazy-evaluation-in-clojure/">
+<link rel="canonical" href="https://greenonion.github.io/tags/sicp/">
 
 
 <style media="screen">
@@ -899,6 +899,8 @@ margin-left: -4%;
 
 
 
+  <link href="https://greenonion.github.io/tags/sicp/index.xml" rel="alternate" type="application/rss+xml" title="Worn-out Shoes" />
+
 
 </head>
 
@@ -906,8 +908,8 @@ margin-left: -4%;
   <body>
 
     
-    <section class="header">
-      
+      <section class="header header-home">
+        
         <div class="container">
           <a href="https://greenonion.github.io/"></a>
           <div class="content">
@@ -938,212 +940,24 @@ margin-left: -4%;
         </div>
       </section>
 
-
-<section class="main post non-narrow zero-top-spacing">
+<section class="main">
     <div class="container">
         <div class="content">
-            <div class="front-matter">
-                <div class="title-container">
-                    <div class="page-heading">
-
-    Lazy Evaluation in Clojure
-
-</div>
-
-                </div>
-                <div class="meta">
-                    <div class="date" title="Wed Dec 2 2015 19:44:17 EET">2 Dec, 2015</div>
+            <div class="posts">
+                <div class="page-heading">Posts about Sicp</div>
+                <ul>
                     
-                        
+                        <li class="post-item">
+    <span class="meta">15 Jun, 2017</span>
+    <a href="https://greenonion.github.io/blog/sicp-solutions-introduction-and-section-1.1.6/"><span>SICP Solutions: Introduction and section 1.1.6</span></a>
+</li>
+
                     
-                    <div class="reading-time"><div class="middot"></div>4 minute read</div>
-                    <div class="tags">
-                        <ul>
-                          
-                            <div class="middot"></div>
-                            <li><a href="https://greenonion.github.io/tags/clojure">clojure</a> </li>
-                          
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="markdown">
-                
-    
-    <p>A couple of weeks ago I had to debug a really mind-boggling (for me)
-problem at work and it took me the better part of three days to figure
-it out. A Clojure program I had created in order to crunch some data
-threw a stack overflow exception provided the input was large enough.
-When I say large enough, I mean around 150 megabytes in JSON format.
-So not huge, but neither negligible.</p>
-
-<p>Let me describe the situation. After some processing, I had a large
-vector of hash maps that looked like this:</p>
-
-<pre><code class="language-clj">[{&quot;ab&quot; [1 0]} {&quot;bc&quot; [1 1]} {&quot;de&quot; [1 0]} {&quot;ab&quot; [1 1]}]
-</code></pre>
-
-<p>So each hash map was essentially mapping a string to a vector which
-contained two numbers. The catch is that there are duplicate strings
-there and the task was to merge them into one single hash map that
-would contain the sum of each number in the vectors. So the example
-above would become:</p>
-
-<pre><code class="language-clj">{&quot;ab&quot; [2 1] &quot;bc&quot; [1 1] &quot;de&quot; [1 0]}
-</code></pre>
-
-<p>“Easy enough”, I thought and proceeded to write:</p>
-
-<pre><code class="language-clj">(defn merge-hashes-naive [coll]
-  (apply merge-with (fn [a b] (map + a b))))
-</code></pre>
-
-<p>Experienced Clojure developers should already be cringing with my
-naivety.</p>
-
-<p>However, the program processed all the input easily and it wasn’t until
-I added the next function that things got bad. After merging all the
-hash maps, I needed to drop some of them and perform calculations based
-on some business rules. I decided to use a list comprehension:</p>
-
-<pre><code class="language-clj">(def simple-list-comp [results]
-  (for [[k [a b]] results]
-    :when ;; do stuff
-</code></pre>
-
-<p>For small input, this worked fine. It wasn’t until I tried it using
-the full input that the stack overflow exception was thrown. And the
-stack trace was huge:</p>
-
-<pre><code>java.lang.StackOverflowError
-     at clojure.core$seq.invoke(core.clj:133)
-     at clojure.core$concat$fn__3955.invoke(core.clj:685)
-     at clojure.lang.LazySeq.sval(LazySeq.java:40)
-     at clojure.lang.LazySeq.seq(LazySeq.java:49)
-     at clojure.lang.RT.seq(RT.java:484)
-     at clojure.core$seq.invoke(core.clj:133)
-     ......
-</code></pre>
-
-<p>The first thing I thought was “I saw this somewhere recently” and
-quickly remembered Stuart Sierra’s <a href="http://stuartsierra.com/2015/04/26/clojure-donts-concat">post on the concat function</a>
-(I think his “<a href="http://stuartsierra.com/tag/dos-and-donts">Clojure do’s and dont’s</a>”
-series is mandatory reading for Clojure programmers). He writes:</p>
-
-<blockquote>
-<p>This is a nasty bug in production code, because it could occur far
-away from its source, and the accumulated stack frames of seq prevent
-us from seeing where the error originated.</p>
-</blockquote>
-
-<p>After trying a lot of things to solve it, all to no avail — the program
-had much more going on than these two functions — I decided to try to
-read the bottom of the (usually truncated) stack trace. Fortunately,
-there is a JVM option for that:</p>
-
-<pre><code>-XX:MaxJavaStackTraceDepth=-1
-</code></pre>
-
-<p>Long story short, the stack trace pointed to the second line of the
-<code>simple-list-comp</code> function. I thought a bit about it, decided it was
-random and ignored it completely.</p>
-
-<p>A couple of days passed.</p>
-
-<p>By then it was Friday, and this had taken me almost half a week to
-solve. I could just use a larger stack, but knew that I would have
-to deal with it eventually. So I thought I would take another look at
-the <code>simple-list-function</code>. I removed all logic from it and just let it
-pass once through the input. Stack overflow. Then, I changed the
-destructuring:</p>
-
-<pre><code class="language-clj">(for [[a b] results] a)
-</code></pre>
-
-<p><em>It didn’t blow up.</em> Somehow, the destructuring of the vector was where
-the problem occurred (note to self: I should trust the stack traces
-more). Suddenly, it all clicked: <em>The destructuring triggered the
-evaluation, it was all lazy seqs until that point!</em> But of course!
-The map function wraps its result in a lazy seq, meaning that nothing
-gets evaluated until the result is needed.</p>
-
-<p>What this means is that whenever the call to <code>merge-with</code> encountered
-a key it had seen before, instead of calculating the result, it wrapped
-the calculation inside a lazy seq and returned. For example, merging:</p>
-
-<pre><code class="language-clj">[{&quot;ab&quot; [1 0]} {&quot;ab&quot; [2 1]} {&quot;ab&quot; [0 1]}]
-</code></pre>
-
-<p>instead of returning just:</p>
-
-<pre><code class="language-clj">{&quot;ab&quot; [3 2]}
-</code></pre>
-
-<p>would essentially return:</p>
-
-<pre><code class="language-clj">{&quot;ab&quot; (map + [0 1] (map + [2 1] [1 0]))}
-</code></pre>
-
-<p>where the nested maps would only get evaluated when needed, which in my
-case was when destructuring the list comprehension arguments. Each
-nested call would consume a bit of the stack and when the nesting
-became large enough, the stack would overflow. In my case it took about
-1,500 calls (so a key would exist 1,500 times in the original
-collection).</p>
-
-<p>The easiest mitigation was to replace <code>map</code> with its eager counterpart,
-<code>mapv</code>:</p>
-
-<pre><code class="language-clj">(defn merge-hashes-naive [coll]
-  (apply merge-with (fn [a b] (mapv + a b))))
-</code></pre>
-
-<p>But the real gain was finally understanding that lazy evaluation
-happens all the time in Clojure. For example <code>map</code>, <code>filter</code>, <code>range</code>
-and <code>take</code> are all lazy.</p>
-
-<p>I hope this will be helpful to another Clojure newbie in the future.
-For more about lazy evaluation in Clojure I suggest reading <a href="http://clojure-doc.org/articles/language/laziness.html">Laziness in Clojure</a>
-and chapter 3 from the excellent <a href="https://www.manning.com/books/the-joy-of-clojure-second-edition">Joy of Clojure</a>
-book.</p>
-
-
-                <br>
-            </div>
-            
-                <div class="navigation">
-                    
-                    <div style="width: 100%;"></div>
-                    
-                    <div>
-                        <a href="https://greenonion.github.io/blog/clojure-code-poster/">Clojure Code Poster</a>
-                        <img class="icon" src="https://greenonion.github.io/img/next.svg" alt="next" />
-                    </div>
-                    
-                </div>
-            
-            <br>
-            <div class="disqus">
-                <div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_shortname = 'greenonion-github-com';
-    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/lazy-evaluation-in-clojure\/';
-    var disqus_title = 'Lazy Evaluation in Clojure';
-    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/lazy-evaluation-in-clojure\/';
-
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+                </ul>
             </div>
         </div>
     </div>
 </section>
-
 <section class="footer">
     <div class="container">
         <div class="copyright">
