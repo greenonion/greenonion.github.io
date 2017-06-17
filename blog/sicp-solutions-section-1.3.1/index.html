@@ -2,7 +2,6 @@
 <html lang="en-us">
 
   <head>
-	<meta name="generator" content="Hugo 0.19" />
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 <meta name="HandheldFriendly" content="True">
@@ -14,19 +13,19 @@
 
     <meta property="twitter:site" content="@@nikosfertakis">
 
-<meta property="twitter:title" content="Worn-out Shoes">
+<meta property="twitter:title" content="SICP Solutions: Section 1.3.1">
 
     <meta property="twitter:card" content="summary">
 
-<meta property="twitter:description" content="Thoughts">
+<meta property="twitter:description" content="">
 
 <title>
 
 
-    Worn-out Shoes
+     Worn-out Shoes - SICP Solutions: Section 1.3.1 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-section-1.3.1/">
 
 
 <style media="screen">
@@ -900,8 +899,6 @@ margin-left: -4%;
 
 
 
-  <link href="https://greenonion.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Worn-out Shoes" />
-
 
 </head>
 
@@ -909,8 +906,8 @@ margin-left: -4%;
   <body>
 
     
-      <section class="header header-home">
-        
+    <section class="header">
+      
         <div class="container">
           <a href="https://greenonion.github.io/"></a>
           <div class="content">
@@ -941,73 +938,209 @@ margin-left: -4%;
         </div>
       </section>
 
-<section class="main">
+
+<section class="main post non-narrow zero-top-spacing">
     <div class="container">
         <div class="content">
-            
-                <div class="markdown">
-                <p>Thoughts on programming, data, and the art of stressing over a huge pile of
-unread books.</p>
+            <div class="front-matter">
+                <div class="title-container">
+                    <div class="page-heading">
+
+    SICP Solutions: Section 1.3.1
+
+</div>
 
                 </div>
+                <div class="meta">
+                    <div class="date" title="Sat Jun 17 2017 11:15:15 EEST">17 Jun, 2017</div>
+                    
+                        
+                    
+                    <div class="reading-time"><div class="middot"></div>3 minute read</div>
+                    <div class="tags">
+                        <ul>
+                          
+                            <div class="middot"></div>
+                            <li><a href="https://greenonion.github.io/tags/sicp">sicp</a> </li>
+                          
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="markdown">
+                
+    
+    
+
+<h2 id="section-1-3-formulating-abstractions-with-higer-order-procedures">Section 1.3 - Formulating Abstractions With Higer-Order Procedures</h2>
+
+<h3 id="section-1-3-1-procedures-as-arguments">Section 1.3.1 - Procedures as Arguments</h3>
+
+<h4 id="exercise-1-29">Exercise 1.29</h4>
+
+<p>Here is the implementation of Simpson&rsquo;s Rule. Note that we defined <code>h</code> as a
+procedure with no arguments since we haven&rsquo;t learned about <code>let</code> yet.</p>
+
+<pre><code class="language-scheme">(define (integral-simon f a b n)
+  (define (h) (/ (- b a) n))
+  (define (y k) (* (f (+ a (* k (h))))
+                   (cond ((or (= k 0) (= k n)) 1)
+                         ((even? k) 2)
+                         (else 4))))
+  (* (sum y 0 inc n)
+     (/ (h) 3.0)))
+
+</code></pre>
+
+<p>And running it we can see that it converges faster than the previous solution:</p>
+
+<pre><code class="language-scheme">&gt; (integral-simon cube 0.0 1 100)
+0.24999999999999992
+&gt; (integral-simon cube 0.0 1 1000)
+0.2500000000000003
+</code></pre>
+
+<h4 id="exercise-1-30">Exercise 1.30</h4>
+
+<pre><code class="language-scheme">(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (&gt; a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
+</code></pre>
+
+<h4 id="exercise-1-31">Exercise 1.31</h4>
+
+<p><code>product</code> is very similar to sum:</p>
+
+<pre><code class="language-klipse-eval-scheme">(define (inc n) (+ 1 n))
+
+(define (product term a next b)
+  (if (&gt; a b)
+      1
+      (* (term a)
+         (product term (next a) next b))))
+
+;; We can use it:
+
+(define (factorial n)
+  (product identity 1 inc n))
+
+(define (wallis n)
+  (define (term a) (if (even? a)
+                       (/ (+ a 2) (+ a 1))
+                       (/ (+ a 1) (+ a 2))))
+  (* (product term 1.0 inc n) 4))
+
+;; Let's try
+(wallis 100)
+</code></pre>
+
+<p>And we can write the iterative version:</p>
+
+<pre><code class="language-scheme">(define (product term a next b)
+  (define (iter a result)
+    (if (&gt; a b)
+        result
+        (iter (next a) (* result (term a)))))
+  (iter a 1))
+</code></pre>
+
+<h4 id="exercise-1-32">Exercise 1.32</h4>
+
+<p>This is a recursive version of <code>accumulate</code>:</p>
+
+<pre><code class="language-scheme">(define (accumulate combiner null-value term a next b)
+  (if (&gt; a b)
+      null-value
+      (combiner (term a)
+                (accumulate combiner null-value term (next a) next b))))
+</code></pre>
+
+<p>We can use it to build <code>sum</code> and <code>product</code>:</p>
+
+<pre><code class="language-scheme">(define (sum term a next b)
+  (accumulate + 0 term a next b))
+
+(define (product term a next b)
+  (accumulate * 1 term a next b))
+</code></pre>
+
+<p>And we can write the iterative version:</p>
+
+<pre><code class="language-scheme">(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (&gt; a b)
+        result
+        (iter (next a) (combiner result (term a)))))
+  (iter a null-value))
+
+</code></pre>
+
+<h4 id="exercise-1-33">Exercise 1.33</h4>
+
+<p>We just skip the <code>combiner</code> if the predicate is not satisfied:</p>
+
+<pre><code class="language-scheme">(define (filtered-accumulate f combiner null-value term a next b)
+  (if (&gt; a b)
+      null-value
+      (if (f a)
+          (combiner
+           (term a)
+           (filtered-accumulate f combiner null-value term (next a) next b))
+          (filtered-accumulate f combiner null-value term (next a) next b))))
+</code></pre>
+
+<p>Then we can define the procedure that generates the sum of squares of primes
+between <code>a</code> and <code>b</code>, and the procedure that generates the product of relative
+primes less than <code>n</code>:</p>
+
+<pre><code class="language-scheme">(define (sum-square-primes a b)
+  (filtered-accumulate prime? + 0 square a inc b))
+
+(define (product-relative-primes n)
+  (define (relative-prime? a) (= (gcd a n) 1))
+  (filtered-accumulate relative-prime? * 1 identity 1 inc (- n 1)))
+</code></pre>
+
+
+                <br>
+            </div>
             
-
-            
-                <div class="posts">
-                
-                
-                    <div class="page-heading">Latest posts</div>
-                    <ul>
+                <div class="navigation">
                     
-                        <li class="groupby">Jun, 2017</li>
-                        
-                            <li class="post-item">
-    <span class="meta">17 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.3.1/"><span>SICP Solutions: Section 1.3.1</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.5-and-1.2.6/"><span>SICP Solutions: Sections 1.2.5 and 1.2.6</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/"><span>SICP Solutions: Sections 1.2.3 and 1.2.4</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/"><span>SICP Solutions: Sections 1.2.1 and 1.2.2</span></a>
-</li>
-
-                        
-                            <li class="post-item">
-    <span class="meta">16 Jun, 2017</span>
-    <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/"><span>SICP Solutions: Section 1.1.7</span></a>
-</li>
-
-                        
+                    <div>
+                        <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.3-and-1.2.4/">SICP Solutions: Sections 1.2.3 and 1.2.4</a>
+                    </div>
                     
-                    </ul>
-
+                    <div style="width: 100%;"></div>
                     
-                        <a href="./blog/" class="see-more">See more ...</a>
-                    
-                
                 </div>
             
+            <br>
+            <div class="disqus">
+                <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'greenonion-github-com';
+    var disqus_identifier = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-section-1.3.1\/';
+    var disqus_title = 'SICP Solutions: Section 1.3.1';
+    var disqus_url = 'https:\/\/greenonion.github.io\/blog\/sicp-solutions-section-1.3.1\/';
 
-            <div class="best-posts">
-            
-            
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
             </div>
         </div>
     </div>
 </section>
+
 <section class="footer">
     <div class="container">
         <div class="copyright">
@@ -1160,5 +1293,4 @@ unread books.</p>
 
 </body>
 </html>
-
 
