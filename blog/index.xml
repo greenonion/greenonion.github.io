@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright © 2017 Nikos Fertakis</copyright>
-    <lastBuildDate>Mon, 28 Aug 2017 19:32:00 +0300</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jan 2018 12:16:56 +0300</lastBuildDate>
     
 	<atom:link href="https://greenonion.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Year 2017 - A Retrospective</title>
+      <link>https://greenonion.github.io/blog/year-2017---a-retrospective/</link>
+      <pubDate>Wed, 03 Jan 2018 12:16:56 +0300</pubDate>
+      
+      <guid>https://greenonion.github.io/blog/year-2017---a-retrospective/</guid>
+      <description>I&amp;rsquo;ve been meaning to do a retrospective of sorts for the past few years, each time I postponed it until it made no sense any more. Here goes.
+2017 was a rough year for me. On the upside:
+ I got to visit America for the first time. I visited Barcelona for the excellent Curry On conference. I read a whole bunch of books. I listened to a whole lot of music and at last managed to do some music rehearsals once again.</description>
+    </item>
     
     <item>
       <title>SICP Solutions: Section 1.3.4</title>
