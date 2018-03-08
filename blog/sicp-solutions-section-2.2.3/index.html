@@ -15,9 +15,9 @@
 <meta property="og:site_name" content="Worn-out Shoes" />
 <meta property="og:locale" content="nn_NO" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/" />
-<meta property="og:title" content="SICP Solutions: Sections 1.2.1 and 1.2.2" />
-<meta property="twitter:title" content="SICP Solutions: Sections 1.2.1 and 1.2.2">
+<meta property="og:url" content="https://greenonion.github.io/blog/sicp-solutions-section-2.2.3/" />
+<meta property="og:title" content="SICP Solutions: Section 2.2.3" />
+<meta property="twitter:title" content="SICP Solutions: Section 2.2.3">
 
     <meta property="twitter:card" content="summary">
 
@@ -27,10 +27,10 @@
 <title>
 
 
-     Worn-out Shoes - SICP Solutions: Sections 1.2.1 and 1.2.2 
+     Worn-out Shoes - SICP Solutions: Section 2.2.3 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.1-and-1.2.2/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-section-2.2.3/">
 
 
 <style media="screen">
@@ -998,17 +998,17 @@ margin-left: -4%;
                 <div class="title-container">
                     <div class="page-heading">
 
-    SICP Solutions: Sections 1.2.1 and 1.2.2
+    SICP Solutions: Section 2.2.3
 
 </div>
 
                 </div>
                 <div class="meta">
-                    <div class="date" title="Fri Jun 16 2017 13:53:44 EEST">16 Jun, 2017</div>
+                    <div class="date" title="Sat Jun 17 2017 12:16:56 EEST">17 Jun, 2017</div>
                     
                         
                     
-                    <div class="reading-time middot">4 minute read</div>
+                    <div class="reading-time middot">1 minute read</div>
                     <div class="tags">
                         <ul>
                           
@@ -1029,288 +1029,43 @@ margin-left: -4%;
     
     
 
-<h2 id="section-1-2">Section 1.2</h2>
+<h3 id="section-2-2-3-sequences-as-conventional-interfaces">Section 2.2.3 - Sequences As Conventional Interfaces</h3>
 
-<h3 id="section-1-2-1">Section 1.2.1</h3>
+<h4 id="exercise-2-37">Exercise 2.37</h4>
 
-<h4 id="exercise-1-9">Exercise 1.9</h4>
+<p>It is suprisingly how simple this is.</p>
 
-<p>First procedure:</p>
+<pre><code class="language-klipse-eval-scheme">(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
 
-<pre><code class="language-scheme">(+ 4 5)
-(inc (+ 3 5))
-(inc (inc (+ 2 5)))
-(inc (inc (inc (+ 1 5))))
-(inc (inc (inc (inc (+ 0 5)))))
-(inc (inc (inc (inc 5))))
-(inc (inc (inc 6)))
-(inc (inc 7))
-(inc 8)
-9
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      ;; nil is no longer part of Scheme so
+      '()
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+
+(define v (list 1 2))
+(define m (list (list 1 2) (list 3 4)))
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (row) (dot-product row v)) m))
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (row) (matrix-*-vector cols row)) m)))
+
+(matrix-*-matrix m m)
 </code></pre>
-
-<p>Second procedure:</p>
-
-<pre><code class="language-scheme">(+ 4 5)
-(+ 3 6)
-(+ 2 7)
-(+ 1 8
-(+ 0 9)
-9
-</code></pre>
-
-<p>The first process is a linear recursive process.
-The second process is a linear iterative process.</p>
-
-<p>Hint: try to see whether calling itself is <em>absolutely</em> the last thing a
-procedure does.</p>
-
-<h4 id="exercise-1-10">Exercise 1.10</h4>
-
-<p>Expression <code>(A 1 10)</code>:</p>
-
-<pre><code class="language-scheme">(A 1 10)
-(A 0
-   (A 1 9))
-(A 0
-   (A 0
-      (A 1 8
-(A 0
-   (A 0
-      (A 0
-         (A 1 7))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 1 6)))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 1 5))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 1 4)))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 0
-                     (A 1 3))))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 0
-                     (A 0
-                        (A 1 2)))))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 0
-                     (A 0
-                        (A 0
-                           (A 1 1))))))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 0
-                     (A 0
-                        (A 0 2)))))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0
-               (A 0
-                  (A 0
-                     (A 0 4))))))))
- (A 0
-    (A 0
-       (A 0
-          (A 0
-             (A 0
-                (A 0
-                   (A 0 8)))))))
- (A 0
-    (A 0
-       (A 0
-          (A 0
-             (A 0
-                (A 0 16))))))
-(A 0
-   (A 0
-      (A 0
-         (A 0
-            (A 0 32)))))
-(A 0
-   (A 0
-      (A 0
-         (A 0 64))))
-(A 0
-   (A 0
-      (A 0 128)))
-(A 0
-   (A 0 256))
-(A 0 512)
-1024
-</code></pre>
-
-<p>So <code>(A 1 x)</code> is \(2^x\).</p>
-
-<p>Expression <code>(A 2 4)</code>|:</p>
-
-<pre><code class="language-scheme">(A 2 4)
-(A 1
-   (A 2 3))
-;; So this is 2^(A 2 3), let's see
-(A 2 3)
-(A 1
-   (A 2 2))
-;; So 2^(2^(A 2 2))
-(A 2 2)
-(A 1
-   (A 2 1))
-;; So 2^(2^(2^(A 2 1)))
-(A 2 1)
-2
-;; So finally 2^(2^(2^2))
-;; Or 2^(2^4)
-;; Or 2^16
-;; 65,636
-</code></pre>
-
-<p>So <code>(A 2 x)</code> is 2 to the power of 2, to the power of 2 .. <code>x</code> times.</p>
-
-<p>Expression <code>(A 3 3)</code>:</p>
-
-<pre><code class="language-scheme">(A 3 3)
-(A 2
-   (A 3 2))
-;; We know what (A 2 x) is, 2 to the power of 2 x times.
-;; Let's see where (A 3 2) takes us:
-(A 3 2)
-(A 2
-   (A 3 1))
-(A 2 2)
-;; Which is 2^2
-;; and the starting expression is (A 2 4)
-;; Which is exactly the same as before.
-</code></pre>
-
-<p>So again <code>(A 3 3)</code> equals \(2^{16} = 65,636\).</p>
-
-<ul>
-<li><code>(f n)</code> computes \(2n\).</li>
-<li><code>(g n)</code> computes \(2^n\).</li>
-<li><code>(h n)</code> computes 2 to the power of 2, to the power of 2 .. <code>x</code> times.</li>
-</ul>
-
-<h3 id="section-1-2-2">Section 1.2.2</h3>
-
-<h4 id="exercise-1-11">Exercise 1.11</h4>
-
-<p>Recursive process:</p>
-
-<pre><code class="language-klipse-eval-scheme">(define (f n)
-  (if (&lt; n 3)
-      n
-      (+ (f (- n 1))
-         (* 2 (f (- n 2)))
-         (* 3 (f (- n 3))))))
-
-(f 4)
-</code></pre>
-
-<p>Iterative process:</p>
-
-<pre><code class="language-klipse-eval-scheme">(define (f n)
-  (if (&lt; n 3)
-      n
-      (f-iter 2 1 0 (- n 2))))
-
-(define (f-iter a b c count)
-  (if (= count 0)
-      a
-      (f-iter (+ a (* 2 b) (* 3 c)) a b (- count 1))))
-
-(f 4)
-</code></pre>
-
-<h4 id="exercise-1-12">Exercise 1.12</h4>
-
-<p>We define a procedure <code>pascal</code> that accepts a row and a column as arguments:</p>
-
-<pre><code class="language-klipse-eval-scheme">(define (pascal x y)
-  (if (or (= y 0) (= x y))
-      1
-      (+ (pascal (- x 1) (- y 1))
-         (pascal (- x 1) y))))
-
-(pascal 3 2)
-</code></pre>
-
-<h4 id="exercise-1-13">Exercise 1.13</h4>
-
-<p>First, the induction.</p>
-
-<p>The base step, for $n = 0$:</p>
-
-<div>$$
-
-\mathrm{Fib}(0) = (\phi^0 - \psi^0) / \sqrt{5} = 0 \textrm{, it holds.}
-
-$$</div>
-
-<p>Assume it is true for $n$, we will prove that it is true for $n + 1$:</p>
-
-<div>$$
-\begin{align*}
-
-\mathrm{Fib}(n+1) &= \frac{\phi^{n+1} - \psi^{n+1}}{\sqrt{5}}\\
-\frac{\phi^{n+1} - \psi^{n+1}}{\sqrt{5}} &= \mathrm{Fib}(n) + \mathrm{Fib}(n - 1)\\
-\frac{\phi^{n+1} - \psi^{n+1}}{\sqrt{5}} &= \frac{\phi^n - \psi^n}{\sqrt{5}} +
-\frac{\phi^{n-1} - \psi^{n-1}}{\sqrt{5}}\\
-\phi^{n+1} - \psi^{n+1} &= \phi^n - \psi^n + \phi^{n-1} - \psi^{n-1}\\
-\phi^{n-1}(\phi^2 - \phi - 1) &= \psi^{n-1}(\psi^2 - \psi - 1)
-
-\end{align*}
-$$</div>
-
-<p>By definition, $\phi^2 = \phi + 1$. Notice that also $\psi^2 = \psi + 1$. This
-means that both sides of the equation are $0$, and the induction holds.</p>
-
-<p>We have proven that</p>
-
-<div>$$
-\begin{equation*}
-
-\mathrm{Fib}(n) = \frac{\phi^n - \psi^n}{\sqrt{5}}
-
-\end{equation*}
-$$</div>
-
-<p>Now we need to prove that $\vert\frac{\psi^n}{\sqrt{5}}\vert &lt; \frac{1}{2}$.</p>
-
-<p>Notice that $\psi &lt; \frac{1}{2}$, and hence $\vert\psi^{n+1}\vert &lt; \vert\psi^n\vert, \forall n \in N$.
-Since $\vert\frac{\psi^0}{\sqrt{5}}\vert &lt; \frac{1}{2}$, it holds for all the rest values
-of $n$.</p>
 
 
                 <br>
@@ -1321,13 +1076,13 @@ of $n$.</p>
                     
                     <div>
                         <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
-                        <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.1.7/">SICP Solutions: Section 1.1.7</a>
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-section-1.3.1/">SICP Solutions: Section 1.3.1</a>
                     </div>
                     
                     <div style="width: 100%;"></div>
                     
                     <div>
-                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.2.5-and-1.2.6/">SICP Solutions: Sections 1.2.5 and 1.2.6</a>
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-1.3.2-and-1.3.3/">SICP Solutions: Sections 1.3.2 and 1.3.3</a>
                         <img class="icon" src="https://greenonion.github.io/img/next.svg" alt="next" />
                     </div>
                     
