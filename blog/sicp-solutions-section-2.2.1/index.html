@@ -15,9 +15,9 @@
 <meta property="og:site_name" content="Worn-out Shoes" />
 <meta property="og:locale" content="nn_NO" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://greenonion.github.io/blog/sicp-solutions-sections-2.1.3-and-2.1.4/" />
-<meta property="og:title" content="SICP Solutions: Sections 2.1.3 and 2.1.4" />
-<meta property="twitter:title" content="SICP Solutions: Sections 2.1.3 and 2.1.4">
+<meta property="og:url" content="https://greenonion.github.io/blog/sicp-solutions-section-2.2.1/" />
+<meta property="og:title" content="SICP Solutions: Section 2.2.1" />
+<meta property="twitter:title" content="SICP Solutions: Section 2.2.1">
 
     <meta property="twitter:card" content="summary">
 
@@ -27,10 +27,10 @@
 <title>
 
 
-     Worn-out Shoes - SICP Solutions: Sections 2.1.3 and 2.1.4 
+     Worn-out Shoes - SICP Solutions: Section 2.2.1 
 
 </title>
-<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-sections-2.1.3-and-2.1.4/">
+<link rel="canonical" href="https://greenonion.github.io/blog/sicp-solutions-section-2.2.1/">
 
 
 <style media="screen">
@@ -998,17 +998,17 @@ margin-left: -4%;
                 <div class="title-container">
                     <div class="page-heading">
 
-    SICP Solutions: Sections 2.1.3 and 2.1.4
+    SICP Solutions: Section 2.2.1
 
 </div>
 
                 </div>
                 <div class="meta">
-                    <div class="date" title="Thu Mar 8 2018 21:24:38 EET">8 Mar, 2018</div>
+                    <div class="date" title="Fri Mar 9 2018 20:06:52 EET">9 Mar, 2018</div>
                     
                         
                     
-                    <div class="reading-time middot">8 minute read</div>
+                    <div class="reading-time middot">2 minute read</div>
                     <div class="tags">
                         <ul>
                           
@@ -1029,303 +1029,101 @@ margin-left: -4%;
     
     
 
-<h3 id="section-2-1-3-what-is-meant-by-data">Section 2.1.3 - What Is Meant by Data?</h3>
+<h2 id="section-2-2-hierarchical-data-and-the-closure-property">Section 2.2 - Hierarchical Data and the Closure Property</h2>
 
-<h4 id="exercise-2-4">Exercise 2.4</h4>
+<h3 id="section-2-2-1-representing-sequences">Section 2.2.1 - Representing Sequences</h3>
 
-<p>As the writers tell us, we can use the substitution model to verify that this
-works:</p>
+<h4 id="exercise-2-17">Exercise 2.17</h4>
 
-<pre><code class="language-scheme">(car (cons x y))
-(car (lambda (m) (m x y)))
-((lambda (m) (m x y)) (lambda (p q) p))
-((lambda (p q) p) x y)
+<pre><code class="language-scheme">(define (last-pair items)
+    (if (null? (cdr items))
+        items
+        (last-pair (cdr items))))
 </code></pre>
 
-<p>So it essentially creates an anonymous procedure that accepts two arguments and
-returns the first. This means that we can implement <code>cdr</code> as:</p>
+<h4 id="exercise-2-18">Exercise 2.18</h4>
 
-<pre><code class="language-scheme">(define (cdr z)
-  (z (lambda (p q) q))
+<p>This is the iterative version:</p>
+
+<pre><code class="language-scheme">(define (reverse items)
+    (define (reverse-iter i l)
+      (if (null? i)
+          l
+          (reverse-iter (cdr i) (cons (car i) l))))
+    (reverse-iter items nil))
 </code></pre>
 
-<h4 id="exercise-2-5">Exercise 2.5</h4>
+<p>We can use <code>append</code> to create a recursive version:</p>
 
-<p>We create a helper procedure <code>contains</code> and use it to implement both <code>car</code> and
-<code>cdr</code>:</p>
-
-<pre><code class="language-scheme">(define (cons a b)
-  (* (expt 2 a) (expt 3 b)))
-
-(define (car z)
-  (contains z 2))
-
-(define (cdr z)
-  (contains z 3))
-
-(define (contains z n)
-  (define (iter a i)
-    (if (&gt; (remainder a n) 0)
-        i
-        (iter (/ a n) (inc i))))
-  (iter z 0))
+<pre><code class="language-scheme">(define (reverse items)
+    (if (null? items)
+        nil
+        (append (reverse (cdr items)) (list (car items)))))
 </code></pre>
 
-<h4 id="exercise-2-6">Exercise 2.6</h4>
+<p>But this will be more expensive because <code>append</code> will iterate over each subset.</p>
 
-<p>We will first use substitution to evaluate <code>(add-1 zero)</code> as the authors
-advise:</p>
+<h4 id="exercise-2-19">Exercise 2.19</h4>
 
-<pre><code class="language-scheme">(add-1 zero)
-(add-1 (lambda (f) (lambda (x) x)))
-(lambda (f) (lambda (x) (f ((lambda (f) (lambda (x) x)) f) x)))
-(lambda (f) (lambda (x) (f ((lambda (x) x) x))))
-(lambda (f) (lambda (x) (f x)))
+<p>The three procedures are really simple actually, just renaming the
+list-operating procedures.</p>
+
+<pre><code class="language-scheme">(define (first-denomination coin-values)
+  (car coin-values))
+
+(define (except-first-denomination coin-values)
+  (cdr coin-values))
+
+(define (no-more? coin-values)
+  (null? coin-values))
 </code></pre>
 
-<p>So this means that <code>zero</code> applies zero times its argument procedure <code>f</code>. Each
-time we add 1 though, we apply the argument procedure one more time. Essentially
-the Church numeral is the function itself, composed $n$ times. So this means
-that we can define <code>one</code> as:</p>
+<p>The order of list <code>coin-values</code> does not affect the answer produced by <code>cc</code>.
+This is because the procedure is not based on any assumption regarding the order
+of the elements.</p>
 
-<pre><code class="language-scheme">(define one (lambda (f) (lambda (x) (f x))))
+<h4 id="exercise-2-20">Exercise 2.20</h4>
+
+<pre><code class="language-scheme">(define (same-parity . i)
+    (define (iter-parity f l)
+      (cond ((null? l) l)
+            ((f (car l)) (cons (car l) (iter-parity f (cdr l))))
+            (else (iter-parity f (cdr l)))))
+    (cond ((null? i) nil)
+          ((even? (car i)) (iter-parity even? i))
+          ((odd? (car i)) (iter-parity odd? i))))
 </code></pre>
 
-<p>and <code>two</code> as:</p>
+<h4 id="exercise-2-21">Exercise 2.21</h4>
 
-<pre><code class="language-scheme">(define two (lambda (f) (lambda (x) (f (f x)))))
+<pre><code class="language-scheme">(define (square-list items)
+  (if (null? items)
+      nil
+      (cons (* (car items) (car items))
+            (square-list (cdr items)))))
+
+(define (square-list items)
+  (map (lambda (x) (* x x)) items))
 </code></pre>
 
-<p>We can then define addition as applying the composition $m + n$ times:</p>
+<h4 id="exercise-2-22">Exercise 2.22</h4>
 
-<pre><code class="language-scheme">(define (plus m n)
-    (lambda (f) (lambda (x) ((m f) ((n f) x)))))
+<p>Louis&rsquo; solution is essentially how we implemented <code>reverse</code> for exercise 2.18.
+Each iteration creates something like <code>(cons 9 (cons 4 (cons 1 nil)))</code>,
+which is exactly how lists are implemented.</p>
+
+<p>Unfortunately the second solution is no good either, because it is the inverse
+of how lists are implemented, and results into something like
+<code>(cons (cons (cons nil 1) 4) 9)</code>. The order is correct, but this isn&rsquo;t how
+Scheme structures lists from <code>cons</code> cells.</p>
+
+<h4 id="exercise-2-23">Exercise 2.23</h4>
+
+<pre><code class="language-scheme">(define (for-each proc items)
+  (cond ((null? items) nil)
+        (else (proc (car items))
+              (my-for-each proc (cdr items)))))
 </code></pre>
-
-<p>We get our hint for the above from the way <code>add-1</code> is implemented. Observe the
-<code>(f ((n f) x))</code> part. What it essentially does is apply <code>f</code> once (<code>add-1</code>,
-remember?) to the result of passing consecutively <code>f</code> and <code>x</code> to the supplied
-function. In the case of <code>zero</code>, the result is <code>x</code>. In the case of <code>one</code> the
-result would be:</p>
-
-<pre><code class="language-scheme">(f ((n f) x))
-(f (((lambda (f) (lambda (x) (f x))) f) x))
-(f ((lambda (x) (f x)) x))
-(f (f x))
-</code></pre>
-
-<p>and so on and so forth.</p>
-
-<h3 id="section-2-1-4-extended-exercise-interval-arithmetic">Section 2.1.4 - Extended Exercise: Interval Arithmetic</h3>
-
-<h4 id="exercise-2-7">Exercise 2.7</h4>
-
-<p>The selectors are simple to implement:</p>
-
-<pre><code class="language-scheme">(define (lower-bound interval) (car interval))
-
-(define (upper-bound interval) (cdr interval))
-</code></pre>
-
-<h4 id="exercise-2-8">Exercise 2.8</h4>
-
-<p>The ordering will not change here:</p>
-
-<pre><code class="language-scheme">(define (sub-interval x y)
-   (make-interval (- (lower-bound x) (lower-bound y))
-                  (- (upper-bound x) (upper-bound y))))
-</code></pre>
-
-<h4 id="exercise-2-9">Exercise 2.9</h4>
-
-<p>Assume we have intervals $x$ and $y$. Assume also we prefix by $\mathrm{lb-}$
-and $\mathrm{ub-}$ the lower and upper bound respectively. The width of the sum
-$x + y$ will be:</p>
-
-<div>$$
-
-\begin{align*}
-  \mathrm{width}(x + y) &= \mathrm{width}([\mathrm{lb-}x + \mathrm{lb-}y,
-    \mathrm{ub-}x + \mathrm{ub-}y])\\
-  &= \frac{\mathrm{ub-}x + \mathrm{ub-}y - \mathrm{lb-}x - \mathrm{lb-}y}{2}\\
-  &= \frac{\mathrm{ub-}x - \mathrm{lb-}x}{2} + \frac{\mathrm{ub-}y -
-    \mathrm{lb-}y}{2}\\
-  &= \mathrm{width}(x) + \mathrm{width}(y)
-\end{align*}
-
-$$</div>
-
-<p>So the width of the sum (and similarly, the difference) of two intervals is a
-function only of the widths of the intevals being added.</p>
-
-<p>Consider multiplication. Assume we have two intervals $a = (1, 3)$ and $b = (-3,
--1)$. Their widths are $\mathrm{width}(a) = 1$ and $\mathrm{width}(b) = 1$.
-However, their multiplication yields the interval $a \times b = (-9, -1)$ and
-$\mathrm{width}(a \times b) = 4$. Now if instead of $b$ we use an other interval of
-width 1, e.g. $d = (5, 7)$ we would have $a \times d = (5, 21)$ and $\mathrm{width}(a
-\times c) = 8$. So width is not a function only of the widths of the intervals beeing
-multiplied. Division is exactly similar.</p>
-
-<h4 id="exercise-2-10">Exercise 2.10</h4>
-
-<pre><code class="language-scheme">(define (div-interval x y)
-  (if (and (&lt;= (lower-bound y) 0) (&gt;= (upper-bound y) 0))
-      (error &quot;Cannot divide by interval that spans zero&quot;)
-      (mul-interval x
-                    (make-interval (/ 1.0 (upper-bound y))
-                                   (/ 1.0 (lower-bound y))))))
-</code></pre>
-
-<h4 id="exercise-2-11">Exercise 2.11</h4>
-
-<p>In my mind this is one case where the programmer has to choose between
-optimization and readable code. So, if you&rsquo;re starving for resources then by all
-means, do this.</p>
-
-<p>Each interval can have its numbers both negative, one negative and one positive,
-or both positive. Hence three times three are the nine cases we need to examine.
-In each case but the one where both intervals span zero, we do not need to
-compare anything to arrive at the solution. Finally, in the case where both
-intervals span zero, we can at least use less arguments in |min| and |max| by
-observing that each time only two numbers will be positive and two will be
-negative. Here goes:</p>
-
-<pre><code class="language-scheme">(define (mul-interval x y)
-  (let ((lbx (lower-bound x))
-        (lby (lower-bound y))
-        (ubx (upper-bound x))
-        (uby (upper-bound y)))
-    (cond ((and (&gt; lbx 0) (&gt; lby 0) (&gt; ubx 0) (&gt; uby 0))
-           ;; 1) all positive
-           (make-interval (* lbx lby) (* ubx uby)))
-          ((and (&lt; lbx 0) (&lt; lby 0) (&lt; ubx 0) (&lt; uby 0))
-           ;; 2) all negative
-           (make-interval (* ubx uby) (* lbx lby)))
-          ((and (&lt; lbx 0) (&gt; lby 0) (&lt; ubx 0) (&gt; uby 0))
-           ;; 3) x all negative, y all positive
-           (make-interval (* lbx uby) (* ubx lby)))
-          ((and (&gt; lbx 0) (&lt; lby 0) (&gt; ubx 0) (&lt; uby 0))
-           ;; 4) x all positive, y all negative
-           (make-interval (* ubx lby) (* lbx uby)))
-          ((and (&gt; lbx 0) (&lt; lby 0) (&gt; ubx 0) (&gt; uby 0))
-           ;; 5) only lower bound of y negative
-           (make-interval (* ubx lby) (* ubx uby)))
-          ((and (&lt; lbx 0) (&gt; lby 0) (&gt; ubx 0) (&gt; uby 0))
-           ;; 6) only lower bound of x negative
-           (make-interval (* lbx uby) (* ubx uby)))
-          ((and (&lt; lbx 0) (&lt; lby 0) (&lt; ubx 0) (&gt; uby 0))
-           ;; 7) only upper bound of y positive
-           (make-interval (* lbx uby) (* lbx lby)))
-          ((and (&lt; lbx 0) (&lt; lby 0) (&gt; ubx 0) (&lt; uby 0))
-           ;; 8) only upper bound of x positive
-           (make-interval (* ubx lby) (* lbx lby)))
-          ((and (&lt; lbx 0) (&lt; lby 0) (&gt; ubx 0) (&gt; uby 0))
-           ;; 9) lower bounds negative, upper bounds positive
-           (let ((neg1 (* lbx uby))
-                 (neg2 (* ubx lby))
-                 (pos1 (* lbx lby))
-                 (pos2 (* ubx uby)))
-             (make-interval (min neg1 neg2) (max pos1 pos2)))))))
-</code></pre>
-
-<h4 id="exercise-2-12">Exercise 2.12</h4>
-
-<pre><code class="language-scheme">(define (make-center-percent c p)
-  (let ((w (* p c)))
-    (make-center-width c w)))
-
-(define (percent i)
-  (/ (width i) (center i)))
-</code></pre>
-
-<h4 id="exercise-2-13">Exercise 2.13</h4>
-
-<p>Assume for intervals $a = (x, p_1)$ and $b = (y, p_2)$, where $p_i$ is the
-tolerance of the interval. We could rewrite $a$ in terms of bounds as:</p>
-
-<div>$$
-
-\begin{align*}
-  (x - p_1x, x + p_1)\\
-  (x(1 - p_1), x(1 + p_1))
-\end{align*}
-
-$$</div>
-
-<p>and similarly $b$ is $(y(1 - p_2), y(1 + p_2))$. Since all numbers are positive,
-the lower bound of their product will be the multiplication of their lower
-bounds and similarly for the upper bounds. Let&rsquo;s work it out:</p>
-
-<div>$$
-
-\begin{align*}
-  (x(1 - p_1)y(1 - p_2), x(1 + p_1)y(1 + p_2))\\
-  (xy(1 - (p_1 + p_2 - p_1p_2)), xy(1 + (p_1 + p_2 + p_1p_2)))
-\end{align*}
-
-$$</div>
-
-<p>Asumming small percentage tolerances, e.g. $10^{-2}$, their products will be
-very small (e.g. $10^{-4}$) and can be ignored. So we can assume that the
-approximate percentage tolerance of the product of two intervals would be $p_1 +
-p_2$.</p>
-
-<h4 id="exercise-2-14">Exercise 2.14</h4>
-
-<p>We can demonstrate that Lem is right by choosing intervals $R_1 = (1, 3)$ and
-$R_2 = (3, 6)$. We have:</p>
-
-<pre><code class="language-scheme">&gt; (par1 (make-interval 1 3) (make-interval 3 6))
-=&gt;
-(mcons 0.3333333333333333 4.5)
-;; and
-&gt; (par2 (make-interval 1 3) (make-interval 3 6))
-=&gt;
-(mcons 0.75 2.0)
-</code></pre>
-
-<p>The issue here is that for algrebraic operations to work correctly (and thus for
-the two formulas to be equivalent), some equations such as $A/A = 1$ must be
-respected in our system. However, this is not true for intervals where width is
-of the same order of magnitude as the center value. As this changes, the value
-gets closer to one. Observe:</p>
-
-<pre><code class="language-scheme">&gt; (div-interval (make-interval 1 2)(make-interval 1 2))
-=&gt;
-(mcons 0.5 2.0)
-;; while
-&gt; (div-interval (make-interval 10000 10001)(make-interval 10000 10001))
-=&gt;
-(mcons 0.9999000099990002 1.0001)
-</code></pre>
-
-<p>Using center-percent form, we can at least make sure that as the percentage is
-small, the operations get closer to correctness. Keep in mind, that we designed
-our system as a way to specify ranges of values, representing error (or
-tolerance). This value is supposed to be small. But even in real world scenarios
-such as the resistor of 6.8ohms with 10\% tolerance, our system does not work
-correctly:</p>
-
-<pre><code class="language-scheme">&gt; (div-interval (make-center-percent 6.8 0.1)(make-center-percent 6.8 0.1))
-=&gt;
-(mcons 0.8181818181818182 1.222222222222222)
-</code></pre>
-
-<h4 id="exercises-2-15-2-16">Exercises 2.15 &amp; 2.16</h4>
-
-<p>Eva Lu Ator has a point. When a variable introduces uncertainty, our system by
-design transfers this uncertainty to any other variable with which it operates.
-If we push uncertainty to the edges (i.e. have as few operations as possible)
-then we should get better results.</p>
-
-<p>Having said that, an interval-arithmetic package should provide general
-operations. One option would be to limit operations to variables with small
-error percentages. However, as we saw with the capacitors, a 10\% error is
-pretty common. This would render our package useless.</p>
-
-<p>In order for our package to be generic enough so it can be useful, it should
-respect algebraic axioms such as $0a = 0$, $a/a = 1$, $a(b + c) = ab + ac$, etc.
-This is what makes the problem difficult.</p>
 
 
                 <br>
@@ -1336,15 +1134,10 @@ This is what makes the problem difficult.</p>
                     
                     <div>
                         <img class="icon" src="https://greenonion.github.io/img/back.svg" alt="back" />
-                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-2.1.1-and-2.1.2/">SICP Solutions: Sections 2.1.1 and 2.1.2</a>
+                        <a href="https://greenonion.github.io/blog/sicp-solutions-sections-2.1.3-and-2.1.4/">SICP Solutions: Sections 2.1.3 and 2.1.4</a>
                     </div>
                     
                     <div style="width: 100%;"></div>
-                    
-                    <div>
-                        <a href="https://greenonion.github.io/blog/sicp-solutions-section-2.2.1/">SICP Solutions: Section 2.2.1</a>
-                        <img class="icon" src="https://greenonion.github.io/img/next.svg" alt="next" />
-                    </div>
                     
                 </div>
             
