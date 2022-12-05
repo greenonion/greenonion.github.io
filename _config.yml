@@ -24,7 +24,8 @@ twitter_username: nikosfertakis
 github_username: greenonion
 minimal_mistakes_skin: contrast
 search: true
-url: "https://www.nikosfertakis.com"
+url: "https://greenonion.github.io"
+repository: "greenonion/greenonion.github.io"
 
 # Build settings
 markdown: kramdown
