@@ -62,8 +62,7 @@ plugins:
 
 author:
   name   : "Nikos Fertakis"
-  avatar : "/assets/images/bio-photo.jpg"
-  bio    : "Generalist."
+  bio    : "Product builder. Generalist. Curious. Lifelong student of music."
   links:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
@@ -88,7 +87,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
       comments: true
       share: true
@@ -99,7 +98,7 @@ defaults:
       type: pages
     values:
       layout: single
-      author_profile: true
+      author_profile: false
 
 category_archive:
   type: liquid
