@@ -4,10 +4,9 @@ title: "Books"
 ---
 
 These are some of the most interesting books I've read or want to read. In the manner of 
-[Patrick Collison's bookshelf](https://patrickcollison.com/bookshelf), this aims to simulate
-the piles of books I have around me and on my shelves. There is no single unifying theme,
-although the past few years I've been reading a lot about product, business, strategy,
-and history. I also love fiction.
+[Patrick Collison's bookshelf](https://patrickcollison.com/bookshelf), this is not organized
+and aims to simulate the piles of books I have around me and on my shelves. I will probably
+create some separate lists of my favorite books around specific topics at some point.
 
 - Inspired
 - Empowered
@@ -28,3 +27,11 @@ and history. I also love fiction.
 - Zero to One
 - Competing Against Luck
 - The Dream Machine
+- Working Backwards: Insights, Stories, and Secrets from Inside Amazon
+- Understanding Michael Porter
+- Radical Candor
+- The Design of Everyday Things
+- Thinking in Bets
+- Designing Data-Intensive Applications
+- The Structure and Interpretation of Computer Programs
+- A Philosophy of Software Design
